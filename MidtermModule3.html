@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3: Web Services & APIs Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2330;
+    --border: #2a3045;
+    --accent: #5b7fff;
+    --accent2: #a78bfa;
+    --green: #22c55e;
+    --red: #ef4444;
+    --green-bg: #052010;
+    --red-bg: #1a0505;
+    --text: #e8ecf5;
+    --muted: #7b82a0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91,127,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; right: -200px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .overline {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(26px, 5vw, 42px);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8ecf5 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .subtitle { font-size: 14px; color: var(--muted); font-weight: 300; }
+  .progress-wrap { width: 100%; max-width: 720px; margin-bottom: 24px; }
+  .progress-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-meta span { font-size: 13px; color: var(--muted); }
+  .score-live { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--text) !important; }
+  .progress-track { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+  .card {
+    width: 100%; max-width: 720px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    animation: slideIn 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  .q-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 99px; padding: 4px 12px;
+    font-size: 12px; color: var(--muted);
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .q-badge .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .q-text { font-size: 18px; line-height: 1.65; color: var(--text); font-weight: 400; margin-bottom: 32px; min-height: 60px; }
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    text-align: left; width: 100%; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14.5px; font-weight: 300; line-height: 1.5;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--accent); background: #1a2035; transform: translateX(3px); }
+  .choice-btn:disabled { cursor: default; transform: none; }
+  .choice-btn .letter {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px;
+    background: var(--border); display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; color: var(--muted);
+    transition: background 0.15s, color 0.15s; margin-top: 1px;
+  }
+  .choice-btn:hover:not(:disabled) .letter { background: var(--accent); color: #fff; }
+  .choice-btn.correct { border-color: var(--green); background: var(--green-bg); }
+  .choice-btn.correct .letter { background: var(--green); color: #fff; }
+  .choice-btn.wrong { border-color: var(--red); background: var(--red-bg); }
+  .choice-btn.wrong .letter { background: var(--red); color: #fff; }
+  .choice-btn.dimmed { opacity: 0.35; }
+  .feedback-box {
+    margin-top: 20px; border-radius: 12px; padding: 16px 20px;
+    display: none; animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .feedback-box.correct { display: block; background: var(--green-bg); border: 1px solid rgba(34,197,94,0.3); }
+  .feedback-box.wrong { display: block; background: var(--red-bg); border: 1px solid rgba(239,68,68,0.3); }
+  .feedback-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 7px; }
+  .feedback-box.correct .feedback-title { color: var(--green); }
+  .feedback-box.wrong .feedback-title { color: var(--red); }
+  .feedback-correct-ans { font-size: 13.5px; color: var(--text); margin-bottom: 6px; font-weight: 400; }
+  .feedback-explain { font-size: 13px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+  .card-footer { margin-top: 28px; display: flex; justify-content: flex-end; }
+  .next-btn {
+    display: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 10px; padding: 12px 28px;
+    color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    letter-spacing: 0.05em; cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+  }
+  .next-btn:hover { opacity: 0.9; transform: scale(0.98); }
+  .next-btn.show { display: inline-flex; align-items: center; gap: 8px; }
+  .results-card {
+    width: 100%; max-width: 720px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 48px 40px; text-align: center;
+    display: none; animation: slideIn 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .results-card.show { display: block; }
+  .score-circle {
+    width: 140px; height: 140px; border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto 24px; position: relative; background: var(--surface2);
+  }
+  .score-circle::before {
+    content: ''; position: absolute; inset: -3px; border-radius: 50%;
+    background: conic-gradient(var(--accent) var(--pct), var(--border) 0%); z-index: -1;
+  }
+  .score-number { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; color: var(--text); line-height: 1; }
+  .score-total { font-size: 13px; color: var(--muted); }
+  .results-card h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+  .results-card .grade-msg { font-size: 15px; color: var(--muted); margin-bottom: 28px; }
+  .stats-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .stat-pill { padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 400; border: 1px solid; }
+  .stat-pill.c { background: var(--green-bg); border-color: rgba(34,197,94,0.3); color: var(--green); }
+  .stat-pill.w { background: var(--red-bg); border-color: rgba(239,68,68,0.3); color: var(--red); }
+  .stat-pill.p { background: var(--surface2); border-color: var(--border); color: var(--muted); }
+  .dot-grid { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 28px; max-width: 380px; margin-left: auto; margin-right: auto; }
+  .dot-grid span { width: 10px; height: 10px; border-radius: 50%; }
+  .retry-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 10px; padding: 14px 36px;
+    color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .retry-btn:hover { opacity: 0.9; }
+  @media (max-width: 600px) { .card, .results-card { padding: 28px 20px; } .q-text { font-size: 16px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="overline">Module 3</div>
+  <h1>Web Services &amp; APIs Quiz</h1>
+  <p class="subtitle">50 questions · One at a time · Instant feedback</p>
+</header>
+
+<div class="progress-wrap" id="prog-wrap">
+  <div class="progress-meta">
+    <span id="prog-label">Question 1 of 50</span>
+    <span class="score-live" id="score-live">Score: 0</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+</div>
+
+<div class="card" id="quiz-card">
+  <div class="q-badge"><span class="dot"></span><span id="q-num">01 / 50</span></div>
+  <div class="q-text" id="q-text"></div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback-box" id="feedback">
+    <div class="feedback-title" id="fb-title"></div>
+    <div class="feedback-correct-ans" id="fb-ans"></div>
+    <div class="feedback-explain" id="fb-explain"></div>
+  </div>
+  <div class="card-footer">
+    <button class="next-btn" id="next-btn" onclick="nextQ()">Next question →</button>
+  </div>
+</div>
+
+<div class="results-card" id="results-card">
+  <div class="score-circle" id="score-circle">
+    <div class="score-number" id="res-score">0</div>
+    <div class="score-total">/ 50</div>
+  </div>
+  <h2 id="res-grade">—</h2>
+  <p class="grade-msg" id="res-msg"></p>
+  <div class="stats-row">
+    <div class="stat-pill c" id="st-c">✓ 0 correct</div>
+    <div class="stat-pill w" id="st-w">✗ 0 wrong</div>
+    <div class="stat-pill p" id="st-p">0%</div>
+  </div>
+  <div class="dot-grid" id="dot-grid"></div>
+  <button class="retry-btn" onclick="restart()">Retake Quiz</button>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "A web service that allows communication between client and server applications over HTTP, treating everything as a resource identified by a URI.",
+    a: "REST API",
+    choices: ["SOAP","REST API","GraphQL","RPC"],
+    explain: "REST API (Representational State Transfer API) is an architectural style for web services using HTTP. It treats resources identified by URIs as the core abstraction."
+  },
+  {
+    q: "A key characteristic of REST meaning each request must include all the information the server needs, with the server storing no client context between requests.",
+    a: "Stateless architecture",
+    choices: ["Stateless architecture","Caching","HATEOAS","Layered system"],
+    explain: "Stateless means every request is self-contained. The server never stores session state between calls, making REST APIs easier to scale and maintain."
+  },
+  {
+    q: "In REST, each resource is identified by this — a Uniform Resource Identifier used in predictable endpoints.",
+    a: "URI",
+    choices: ["URL","URI","HTTP Method","Endpoint"],
+    explain: "A URI (Uniform Resource Identifier) uniquely identifies a resource. REST uses URIs as the addressing mechanism for all resources."
+  },
+  {
+    q: "The HTTP method used to retrieve data from a REST API, such as fetching all users from /users.",
+    a: "GET",
+    choices: ["POST","PUT","GET","DELETE"],
+    explain: "GET is a read-only HTTP method. It retrieves data without modifying the resource, making it safe and idempotent."
+  },
+  {
+    q: "The HTTP method used to create a new resource in a REST API, such as adding a new user via /users.",
+    a: "POST",
+    choices: ["GET","POST","PUT","PATCH"],
+    explain: "POST sends data to the server to create a new resource. Unlike GET, it modifies server state and is not idempotent."
+  },
+  {
+    q: "The HTTP method used to fully update or replace an existing resource, such as updating all fields of /users/5.",
+    a: "PUT",
+    choices: ["PATCH","POST","GET","PUT"],
+    explain: "PUT replaces the entire resource with the provided data. If the resource exists it is replaced; if not, it may be created."
+  },
+  {
+    q: "The HTTP method used to partially update a resource, modifying only one or a few fields of an existing record.",
+    a: "PATCH",
+    choices: ["PUT","POST","PATCH","DELETE"],
+    explain: "PATCH applies a partial update — only the supplied fields are changed, unlike PUT which replaces the whole resource."
+  },
+  {
+    q: "The HTTP method used to remove a resource from a REST API, such as deleting /users/5.",
+    a: "DELETE",
+    choices: ["GET","PUT","PATCH","DELETE"],
+    explain: "DELETE removes the specified resource from the server. After a successful DELETE, subsequent GET requests for that resource should return 404."
+  },
+  {
+    q: "The most commonly used data format in REST APIs due to its lightweight structure, simplicity, and cross-platform compatibility.",
+    a: "JSON",
+    choices: ["XML","YAML","JSON","CSV"],
+    explain: "JSON (JavaScript Object Notation) is the dominant REST API format because it is compact, human-readable, and natively supported by JavaScript and most languages."
+  },
+  {
+    q: "A caching mechanism in REST APIs that specifies caching policies to reduce server load and improve efficiency.",
+    a: "Cache-Control headers",
+    choices: ["ETag headers","Cache-Control headers","Authorization headers","Content-Type headers"],
+    explain: "Cache-Control headers instruct clients and proxies on how long to cache responses, reducing redundant server requests."
+  },
+  {
+    q: "A caching mechanism that allows conditional requests to avoid sending unchanged data back to the client.",
+    a: "ETag headers",
+    choices: ["Cache-Control headers","ETag headers","Rate-Limit headers","Accept headers"],
+    explain: "ETag (Entity Tag) is a hash of the resource's content. Clients send it back; if unchanged, the server responds with 304 Not Modified instead of resending data."
+  },
+  {
+    q: "A REST architectural constraint where clients do not need to know if they communicate directly with the server or through intermediaries like load balancers.",
+    a: "Layered system",
+    choices: ["Stateless","HATEOAS","Layered system","Caching"],
+    explain: "A layered system allows intermediaries (proxies, gateways, load balancers) to sit between client and server transparently, improving scalability and security."
+  },
+  {
+    q: "A REST feature that provides links in API responses so clients can discover related resources dynamically rather than hardcoding endpoint structures.",
+    a: "HATEOAS",
+    choices: ["HATEOAS","Versioning","Pagination","Rate limiting"],
+    explain: "HATEOAS (Hypermedia as the Engine of Application State) embeds navigation links in responses, enabling clients to explore the API without prior knowledge of its structure."
+  },
+  {
+    q: "A REST API design convention where endpoint names use nouns like /products or /orders rather than verbs.",
+    a: "Resource naming with nouns",
+    choices: ["Versioning","Resource naming with nouns","Pagination","HATEOAS"],
+    explain: "Using nouns keeps REST endpoints focused on resources. HTTP methods (GET, POST, DELETE) already express the action, so adding verbs to URLs is redundant."
+  },
+  {
+    q: "A REST API practice of using /api/v1/orders to prevent breaking changes from affecting existing clients when the API evolves.",
+    a: "API versioning",
+    choices: ["Rate limiting","Pagination","API versioning","Authentication"],
+    explain: "API versioning (e.g., /v1/, /v2/) lets developers introduce breaking changes in new versions while keeping older versions functional for existing clients."
+  },
+  {
+    q: "A REST API feature using query parameters like /users?page=2&limit=50 to manage large result sets efficiently.",
+    a: "Pagination",
+    choices: ["Versioning","Caching","Pagination","Rate limiting"],
+    explain: "Pagination breaks large datasets into pages. Query parameters control which page and how many records to return, reducing payload size and server load."
+  },
+  {
+    q: "A REST API security mechanism that limits the number of requests a client can make to protect against abuse and ensure fair usage.",
+    a: "Rate limiting",
+    choices: ["Caching","Pagination","Rate limiting","HTTPS"],
+    explain: "Rate limiting caps how many requests a client can send in a time window. It prevents abuse, DDoS attacks, and ensures equitable access for all API consumers."
+  },
+  {
+    q: "Security mechanisms for REST APIs including API keys, OAuth 2.0, or JSON Web Tokens to verify identity.",
+    a: "Authentication and authorization",
+    choices: ["Input validation","Rate limiting","Authentication and authorization","HTTPS"],
+    explain: "Authentication confirms who the client is; authorization determines what they can do. REST APIs use API keys, OAuth 2.0, or JWT to handle both."
+  },
+  {
+    q: "Tools like Swagger/OpenAPI or Postman used to generate clear, interactive documentation for REST APIs.",
+    a: "API documentation tools",
+    choices: ["API documentation tools","Load testing tools","Debugging tools","CI/CD pipelines"],
+    explain: "Swagger/OpenAPI and Postman generate interactive docs where developers can read about and test endpoints without writing code, speeding up adoption."
+  },
+  {
+    q: "A formal protocol for exchanging structured information in web services that relies strictly on XML for message formatting.",
+    a: "SOAP",
+    choices: ["REST","SOAP","GraphQL","WebSocket"],
+    explain: "SOAP (Simple Object Access Protocol) is a W3C-defined protocol that mandates XML messaging and strict contracts — unlike REST which is an architectural style."
+  },
+  {
+    q: "A characteristic of SOAP meaning it has strict rules defined by the W3C covering both message structure and transmission.",
+    a: "Protocol-based",
+    choices: ["Stateless","Protocol-based","Resource-oriented","Lightweight"],
+    explain: "SOAP is a formal protocol — not just a style. It specifies exactly how messages must be structured, encoded, and transmitted, enforced by W3C standards."
+  },
+  {
+    q: "A characteristic of SOAP that makes it language and platform independent since its messages can be parsed by any system.",
+    a: "XML messaging",
+    choices: ["JSON messaging","XML messaging","Binary encoding","YAML messaging"],
+    explain: "SOAP exclusively uses XML, which is text-based and universally parseable. Any language with an XML parser can consume a SOAP service."
+  },
+  {
+    q: "A feature of SOAP allowing it to operate over HTTP, SMTP, TCP, or JMS — not limited to a single network protocol.",
+    a: "Transport independence",
+    choices: ["Transport independence","Statelessness","Caching","XML schema"],
+    explain: "Unlike REST which is tied to HTTP, SOAP's envelope-based design allows it to travel over multiple transport protocols including email (SMTP) and messaging queues (JMS)."
+  },
+  {
+    q: "A SOAP document that describes a service's operations, data types, endpoint, and how clients can consume it — forming a strict communication contract.",
+    a: "WSDL",
+    choices: ["XSD","WSDL","OpenAPI","DTD"],
+    explain: "WSDL (Web Services Description Language) is the machine-readable contract for SOAP services. It defines every operation, its inputs/outputs, and the service endpoint."
+  },
+  {
+    q: "A SOAP security standard that includes message encryption, digital signatures, and authentication for sensitive applications.",
+    a: "WS-Security",
+    choices: ["OAuth 2.0","JWT","WS-Security","HTTPS"],
+    explain: "WS-Security is a SOAP-specific standard that adds end-to-end security at the message level — encryption and signatures travel with the message, not just the transport."
+  },
+  {
+    q: "The root element of a SOAP message that defines the XML document as a SOAP message.",
+    a: "Envelope",
+    choices: ["Header","Body","Envelope","Fault"],
+    explain: "The SOAP Envelope is the outermost wrapper of every SOAP message. It declares the XML namespace and contains the Header and Body sections."
+  },
+  {
+    q: "An optional SOAP message section containing metadata such as authentication tokens or transaction details.",
+    a: "Header",
+    choices: ["Body","Envelope","Fault","Header"],
+    explain: "The SOAP Header carries out-of-band information like auth tokens, session IDs, or routing hints — separate from the actual business payload in the Body."
+  },
+  {
+    q: "The SOAP message section that contains the actual request or response data being exchanged.",
+    a: "Body",
+    choices: ["Header","Envelope","Body","Fault"],
+    explain: "The SOAP Body holds the core business payload — the operation being invoked and its parameters in a request, or the result data in a response."
+  },
+  {
+    q: "A SOAP element returned in the body when an error occurs, used to communicate fault details back to the client.",
+    a: "Fault",
+    choices: ["Header","Body","Envelope","Fault"],
+    explain: "The soap:Fault element is the SOAP error-handling mechanism. It appears inside the Body and describes what went wrong with a fault code and message."
+  },
+  {
+    q: "An advantage of SOAP describing its ability to work correctly between systems built on different platforms and programming languages.",
+    a: "Interoperability via strict contracts",
+    choices: ["Lightweight performance","Interoperability via strict contracts","JSON support","Statelessness"],
+    explain: "SOAP's WSDL contract and XML standard ensure that any system implementing the contract — regardless of language or platform — can communicate correctly."
+  },
+  {
+    q: "A disadvantage of SOAP related to its XML-only format making messages longer and harder to read than REST equivalents.",
+    a: "Verbose due to XML formatting",
+    choices: ["No transport independence","Verbose due to XML formatting","Lack of security","No contract support"],
+    explain: "SOAP's XML envelope with namespaces, headers, and tags creates much larger message payloads than equivalent JSON in REST, increasing bandwidth and processing time."
+  },
+  {
+    q: "A critical part of the software development lifecycle that acts as a bridge between the API provider and developers, guiding how to understand and use the API.",
+    a: "API documentation",
+    choices: ["API testing","API documentation","API versioning","API gateway"],
+    explain: "API documentation reduces the learning curve by providing developers with all the information they need — endpoints, parameters, authentication, and examples."
+  },
+  {
+    q: "A component of API documentation providing a brief introduction to the API's purpose, main features, and potential use cases.",
+    a: "Overview",
+    choices: ["Base URL","Overview","Endpoints","Parameters"],
+    explain: "The Overview section is the entry point of API docs — it tells developers what the API does and when to use it, before they dive into technical details."
+  },
+  {
+    q: "A component of API documentation showing the root URL for all API endpoints, such as https://api.example.com/v1/.",
+    a: "Base URL",
+    choices: ["Overview","Authentication","Base URL","Endpoints"],
+    explain: "The Base URL is the common prefix for all API calls. Every endpoint is appended to it, so developers know exactly where to send requests."
+  },
+  {
+    q: "A component of API documentation detailing how users authenticate, covering API keys, OAuth 2.0, and JWT with examples like Authorization: Bearer <token>.",
+    a: "Authentication section",
+    choices: ["Base URL","Authentication section","Rate limiting","Versioning"],
+    explain: "The authentication section explains the security model — without it, developers cannot make authorized API calls regardless of how well other sections are documented."
+  },
+  {
+    q: "A type of API parameter embedded in the URL path itself, such as /users/{id} where the id is dynamic.",
+    a: "Path parameter",
+    choices: ["Query parameter","Body parameter","Header parameter","Path parameter"],
+    explain: "Path parameters are variable segments in the URL (e.g., /users/42). They identify a specific resource and are required for the request to be valid."
+  },
+  {
+    q: "A type of API parameter appended to the URL after a question mark, such as ?page=2&limit=50, used for filtering and pagination.",
+    a: "Query parameter",
+    choices: ["Path parameter","Query parameter","Body parameter","Header parameter"],
+    explain: "Query parameters are optional key-value pairs in the URL string. They modify the request (filtering, sorting, pagination) without changing the resource path."
+  },
+  {
+    q: "A best practice for API documentation recommending the use of machine-readable formats to auto-generate documentation and SDKs.",
+    a: "Use OpenAPI/Swagger",
+    choices: ["Add code examples","Use OpenAPI/Swagger","Offer interactive docs","Update regularly"],
+    explain: "OpenAPI (formerly Swagger) is a specification for describing REST APIs in YAML or JSON. Tools can auto-generate docs, client SDKs, and server stubs from it."
+  },
+  {
+    q: "A component of API documentation that provides a table of possible errors including HTTP status codes and their descriptions.",
+    a: "Error codes",
+    choices: ["Rate limiting","Versioning","Error codes","Interactive tools"],
+    explain: "Documenting error codes helps developers handle failures gracefully. Each code should explain what triggered it and how the client can recover."
+  },
+  {
+    q: "Tools like Swagger UI, Postman Collections, or API consoles that allow developers to experiment with endpoints in real time from the documentation.",
+    a: "Interactive tools",
+    choices: ["Code examples","Interactive tools","Error codes","Versioning"],
+    explain: "Interactive documentation removes the need to write test code. Developers can authenticate and call live endpoints directly from the browser-based docs."
+  },
+  {
+    q: "The testing type that focuses on testing individual service functions or methods in isolation, such as validating a single input-processing function.",
+    a: "Unit testing",
+    choices: ["Integration testing","Functional testing","Unit testing","Regression testing"],
+    explain: "Unit testing isolates the smallest testable piece of code and verifies it independently. It catches bugs early before components interact."
+  },
+  {
+    q: "The testing type that ensures different components like the service, database, and external APIs work together correctly as a system.",
+    a: "Integration testing",
+    choices: ["Unit testing","Integration testing","Security testing","Performance testing"],
+    explain: "Integration testing verifies that connected components communicate correctly — for example, that a service properly reads from its database and calls external APIs."
+  },
+  {
+    q: "The testing type that verifies the web service meets specified requirements, such as confirming GET /users returns users in the correct format.",
+    a: "Functional testing",
+    choices: ["Unit testing","Functional testing","Performance testing","Regression testing"],
+    explain: "Functional testing validates behavior against requirements. It asks 'does this endpoint do what it's supposed to do?' for each feature."
+  },
+  {
+    q: "The testing type that measures how the service performs under stress, concurrent requests, or high data loads, using tools like Apache JMeter.",
+    a: "Performance and load testing",
+    choices: ["Security testing","Regression testing","Performance and load testing","Unit testing"],
+    explain: "Performance/load testing reveals bottlenecks under heavy traffic. Tools like JMeter simulate thousands of concurrent users to find breaking points."
+  },
+  {
+    q: "The testing type that identifies vulnerabilities like SQL injection, cross-site scripting (XSS), or broken authentication in a web service.",
+    a: "Security testing",
+    choices: ["Functional testing","Performance testing","Security testing","Integration testing"],
+    explain: "Security testing proactively attacks the API with known exploit techniques to find and fix vulnerabilities before malicious actors can exploit them."
+  },
+  {
+    q: "The testing type that ensures changes to the codebase do not break existing functionality, typically performed with automated test suites.",
+    a: "Regression testing",
+    choices: ["Unit testing","Integration testing","Regression testing","Functional testing"],
+    explain: "Regression testing re-runs existing tests after code changes to catch unintended side effects. Automated suites make this fast and reliable in CI pipelines."
+  },
+  {
+    q: "A widely used API testing tool supporting manual and automated testing with scripting capabilities.",
+    a: "Postman",
+    choices: ["SoapUI","Postman","Apache JMeter","Swagger UI"],
+    explain: "Postman provides a GUI for crafting API requests, writing test scripts, and automating collections — making it popular for both manual exploration and CI testing."
+  },
+  {
+    q: "A testing tool popular for SOAP and REST testing that supports functional, load, and security tests.",
+    a: "SoapUI",
+    choices: ["Postman","SoapUI","Apache JMeter","Locust"],
+    explain: "SoapUI is purpose-built for web service testing. It supports WSDL-based SOAP testing as well as REST, with built-in support for load and security scenarios."
+  },
+  {
+    q: "A tool used specifically for load and performance testing of web services.",
+    a: "Apache JMeter",
+    choices: ["Postman","SoapUI","Apache JMeter","Swagger UI"],
+    explain: "Apache JMeter simulates large numbers of concurrent users to measure response times, throughput, and failure rates under load."
+  },
+  {
+    q: "A debugging technique involving recording request headers, parameters, payloads, and responses on both client and server to trace issues.",
+    a: "Logging",
+    choices: ["Mock servers","Logging","Isolate components","Validate data formats"],
+    explain: "Structured logging creates a timestamped trail of every request and response. When bugs occur, logs provide the context needed to reproduce and diagnose them."
+  },
+  {
+    q: "A debugging technique that simulates external services or third-party APIs to test how your API handles their responses without real dependencies.",
+    a: "Mock servers",
+    choices: ["Logging","Isolate components","Mock servers","Validate data formats"],
+    explain: "Mock servers return predefined responses in place of real external services. They let you test your API's behavior in controlled scenarios without external dependencies or costs."
+  },
+  {
+    q: "A debugging technique that tests individual service layers such as the database module or authentication module separately to pinpoint where an issue occurs.",
+    a: "Isolate components",
+    choices: ["Logging","Validate data formats","Mock servers","Isolate components"],
+    explain: "Isolating components narrows the search space for bugs. By testing each layer independently you can confirm whether the problem is in the database query, business logic, or auth layer."
+  },
+  {
+    q: "A best practice in testing that involves running tests automatically as part of a pipeline to catch issues with every code change.",
+    a: "Continuous Integration (CI) pipeline",
+    choices: ["Manual testing","Continuous Integration (CI) pipeline","Load testing","Interactive documentation"],
+    explain: "Running tests in a CI pipeline ensures every commit is automatically verified. This catches regressions immediately, before code reaches production."
+  },
+  {
+    q: "A REST API implementation step involving limiting clients to a maximum number of requests to protect against abuse and ensure fair usage.",
+    a: "Rate limiting",
+    choices: ["Authentication","Versioning","Rate limiting","Caching"],
+    explain: "Rate limiting is enforced server-side by tracking request counts per client per time window. Exceeding the limit returns a 429 Too Many Requests response."
+  }
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let questions, current, score, results;
+
+function init() {
+  questions = shuffle(QUESTIONS).map(q => ({ ...q, shuffledChoices: shuffle(q.choices) }));
+  current = 0; score = 0; results = [];
+  document.getElementById('results-card').classList.remove('show');
+  document.getElementById('quiz-card').style.display = '';
+  document.getElementById('prog-wrap').style.display = '';
+  renderQ();
+}
+
+function renderQ() {
+  const q = questions[current];
+  const n = current + 1;
+  document.getElementById('q-num').textContent = String(n).padStart(2,'0') + ' / 50';
+  document.getElementById('prog-label').textContent = `Question ${n} of 50`;
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+  document.getElementById('prog-fill').style.width = ((current / 50) * 100) + '%';
+  document.getElementById('q-text').textContent = q.q;
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback-box';
+  document.getElementById('next-btn').classList.remove('show');
+  const choices = document.getElementById('choices');
+  choices.innerHTML = '';
+  q.shuffledChoices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="letter">${['A','B','C','D'][i]}</span><span>${c}</span>`;
+    btn.onclick = () => selectAnswer(c);
+    choices.appendChild(btn);
+  });
+}
+
+function selectAnswer(chosen) {
+  const q = questions[current];
+  const correct = chosen === q.a;
+  if (correct) score++;
+  results.push({ correct, chosen, answer: q.a });
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.disabled = true;
+    const label = btn.querySelector('span:last-child').textContent;
+    if (label === q.a) btn.classList.add('correct');
+    else if (label === chosen && !correct) btn.classList.add('wrong');
+    else btn.classList.add('dimmed');
+  });
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    fb.className = 'feedback-box correct';
+    document.getElementById('fb-title').textContent = '✓  Correct!';
+    document.getElementById('fb-ans').textContent = '';
+    document.getElementById('fb-explain').textContent = q.explain;
+  } else {
+    fb.className = 'feedback-box wrong';
+    document.getElementById('fb-title').textContent = '✗  Incorrect';
+    document.getElementById('fb-ans').textContent = `Correct answer: ${q.a}`;
+    document.getElementById('fb-explain').textContent = q.explain;
+  }
+  const nb = document.getElementById('next-btn');
+  nb.textContent = current === 49 ? 'See Results →' : 'Next question →';
+  nb.classList.add('show');
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+}
+
+function nextQ() {
+  current++;
+  if (current >= 50) showResults();
+  else renderQ();
+}
+
+function showResults() {
+  document.getElementById('quiz-card').style.display = 'none';
+  document.getElementById('prog-wrap').style.display = 'none';
+  const pct = Math.round((score / 50) * 100);
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('score-circle').style.setProperty('--pct', pct + '%');
+  let grade, msg;
+  if (pct >= 90) { grade = 'Outstanding!'; msg = 'Excellent mastery of Web Services & APIs.'; }
+  else if (pct >= 80) { grade = 'Great Job!'; msg = 'Strong understanding with a few gaps to review.'; }
+  else if (pct >= 70) { grade = 'Good Work'; msg = 'Solid foundation — review the missed topics.'; }
+  else if (pct >= 60) { grade = 'Passing'; msg = 'You passed, but a thorough review is recommended.'; }
+  else { grade = 'Keep Studying'; msg = 'Review Module 3 thoroughly and try again.'; }
+  document.getElementById('res-grade').textContent = grade;
+  document.getElementById('res-msg').textContent = msg;
+  const wrong = results.filter(r => !r.correct).length;
+  document.getElementById('st-c').textContent = `✓ ${score} correct`;
+  document.getElementById('st-w').textContent = `✗ ${wrong} wrong`;
+  document.getElementById('st-p').textContent = `${pct}%`;
+  document.getElementById('dot-grid').innerHTML = results.map(r =>
+    `<span style="background:${r.correct ? 'var(--green)' : 'var(--red)'};" title="${r.correct ? 'Correct' : 'Wrong: ' + r.answer}"></span>`
+  ).join('');
+  document.getElementById('results-card').classList.add('show');
+  document.getElementById('prog-fill').style.width = '100%';
+}
+
+function restart() {
+  document.getElementById('prog-wrap').style.display = '';
+  init();
+}
+
+init();
+</script>
+</body>
+</html>

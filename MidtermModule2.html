@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2: Data Integration Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2330;
+    --border: #2a3045;
+    --accent: #5b7fff;
+    --accent2: #a78bfa;
+    --green: #22c55e;
+    --red: #ef4444;
+    --green-bg: #052010;
+    --red-bg: #1a0505;
+    --text: #e8ecf5;
+    --muted: #7b82a0;
+    --dim: #3d4560;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91,127,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; right: -200px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  header {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .overline {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(26px, 5vw, 42px);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8ecf5 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .progress-wrap {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 24px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .progress-meta span {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .progress-meta .score-live {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 720px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    position: relative;
+    animation: slideIn 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .q-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .q-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .q-text {
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--text);
+    font-weight: 400;
+    margin-bottom: 32px;
+    min-height: 60px;
+  }
+
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .choice-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 300;
+    line-height: 1.5;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #1a2035;
+    transform: translateX(3px);
+  }
+  .choice-btn:disabled { cursor: default; transform: none; }
+  .choice-btn .letter {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--muted);
+    transition: background 0.15s, color 0.15s;
+    margin-top: 1px;
+  }
+  .choice-btn:hover:not(:disabled) .letter {
+    background: var(--accent);
+    color: #fff;
+  }
+  .choice-btn.correct {
+    border-color: var(--green);
+    background: var(--green-bg);
+  }
+  .choice-btn.correct .letter {
+    background: var(--green);
+    color: #fff;
+  }
+  .choice-btn.wrong {
+    border-color: var(--red);
+    background: var(--red-bg);
+  }
+  .choice-btn.wrong .letter {
+    background: var(--red);
+    color: #fff;
+  }
+  .choice-btn.dimmed {
+    opacity: 0.35;
+  }
+
+  .feedback-box {
+    margin-top: 20px;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .feedback-box.correct {
+    display: block;
+    background: var(--green-bg);
+    border: 1px solid rgba(34,197,94,0.3);
+  }
+  .feedback-box.wrong {
+    display: block;
+    background: var(--red-bg);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .feedback-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .feedback-box.correct .feedback-title { color: var(--green); }
+  .feedback-box.wrong .feedback-title { color: var(--red); }
+  .feedback-correct-ans {
+    font-size: 13.5px;
+    color: var(--text);
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+  .feedback-explain {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .card-footer {
+    margin-top: 28px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .next-btn {
+    display: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .next-btn:hover { opacity: 0.9; transform: scale(0.98); }
+  .next-btn.show { display: inline-flex; align-items: center; gap: 8px; }
+
+  /* Results */
+  .results-card {
+    width: 100%;
+    max-width: 720px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    display: none;
+    animation: slideIn 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .results-card.show { display: block; }
+  .score-circle {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+    background: var(--surface2);
+  }
+  .score-circle::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) var(--pct), var(--border) 0%);
+    z-index: -1;
+  }
+  .score-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+  }
+  .score-total {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .results-card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .results-card .grade-msg {
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .stat-pill {
+    padding: 8px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 400;
+    border: 1px solid;
+  }
+  .stat-pill.c { background: var(--green-bg); border-color: rgba(34,197,94,0.3); color: var(--green); }
+  .stat-pill.w { background: var(--red-bg); border-color: rgba(239,68,68,0.3); color: var(--red); }
+  .stat-pill.p { background: var(--surface2); border-color: var(--border); color: var(--muted); }
+  .retry-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 10px;
+    padding: 14px 36px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .retry-btn:hover { opacity: 0.9; }
+
+  .dot-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 28px;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .dot-grid span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  @media (max-width: 600px) {
+    .card, .results-card { padding: 28px 20px; }
+    .q-text { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="overline">Module 2</div>
+  <h1>Data Integration Quiz</h1>
+  <p class="subtitle">50 questions · One at a time · Instant feedback</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span id="prog-label">Question 1 of 50</span>
+    <span class="score-live" id="score-live">Score: 0</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="prog-fill"></div>
+  </div>
+</div>
+
+<div class="card" id="quiz-card">
+  <div class="q-badge"><span class="dot"></span><span id="q-num">01 / 50</span></div>
+  <div class="q-text" id="q-text"></div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback-box" id="feedback">
+    <div class="feedback-title" id="fb-title"></div>
+    <div class="feedback-correct-ans" id="fb-ans"></div>
+    <div class="feedback-explain" id="fb-explain"></div>
+  </div>
+  <div class="card-footer">
+    <button class="next-btn" id="next-btn" onclick="nextQ()">Next question →</button>
+  </div>
+</div>
+
+<div class="results-card" id="results-card">
+  <div class="score-circle" id="score-circle">
+    <div class="score-number" id="res-score">0</div>
+    <div class="score-total" id="res-total">/ 50</div>
+  </div>
+  <h2 id="res-grade">—</h2>
+  <p class="grade-msg" id="res-msg"></p>
+  <div class="stats-row">
+    <div class="stat-pill c" id="st-c">✓ 0 correct</div>
+    <div class="stat-pill w" id="st-w">✗ 0 wrong</div>
+    <div class="stat-pill p" id="st-p">0%</div>
+  </div>
+  <div class="dot-grid" id="dot-grid"></div>
+  <button class="retry-btn" onclick="restart()">Retake Quiz</button>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "The process of connecting a database with other systems, applications, or databases to enable data sharing, improve workflows, and enhance functionality.",
+    a: "Database integration",
+    choices: ["Database integration","Data warehousing","ETL pipeline","Schema mapping"],
+    explain: "Database integration is the act of linking databases with other systems to allow data sharing and workflow improvement — the core definition given in section 2.1."
+  },
+  {
+    q: "Organizations often have multiple databases for CRM, ERP, and HR systems. This benefit of integration allows related data from all of them to be accessed collectively.",
+    a: "Unified data access",
+    choices: ["Unified data access","Data silos","Real-time synchronization","Scalability"],
+    explain: "Unified data access means combining access across multiple databases so all related information can be queried together, avoiding fragmentation."
+  },
+  {
+    q: "Standalone databases can create this problem, where information is isolated and prevents efficient collaboration and decision-making.",
+    a: "Data silos",
+    choices: ["Schema drift","Data silos","Batch loading","Data enrichment"],
+    explain: "A data silo is isolated data locked in a standalone database that cannot be easily shared or accessed by other systems or teams."
+  },
+  {
+    q: "Many business operations such as inventory management and financial reporting rely on this integration benefit to ensure information is always up-to-date.",
+    a: "Real-time data synchronization",
+    choices: ["Full extraction","Real-time data synchronization","Batch loading","Incremental loading"],
+    explain: "Real-time data synchronization keeps data updated across systems instantly, which is critical for operations where stale data causes errors."
+  },
+  {
+    q: "This benefit of database integration supports predictive modeling and machine learning by providing access to large and diverse data.",
+    a: "Support for advanced analytics",
+    choices: ["Compliance and governance","Unified data access","Support for advanced analytics","Improved automation"],
+    explain: "Advanced analytics like ML models require diverse, large datasets. Integration makes those datasets available across systems."
+  },
+  {
+    q: "As businesses grow and adopt new tools, each with its own database, this benefit of integration ensures systems can expand without breaking.",
+    a: "Scalability for business growth",
+    choices: ["Data governance","Data silos elimination","Scalability for business growth","Real-time synchronization"],
+    explain: "Scalability for business growth means integration architectures accommodate new databases and systems as the organization expands."
+  },
+  {
+    q: "Regulatory requirements that mandate consistent and accurate data management across systems fall under this benefit of database integration.",
+    a: "Compliance and data governance",
+    choices: ["Compliance and data governance","Unified data access","Improved efficiency","Advanced analytics"],
+    explain: "Compliance and data governance ensure organizations meet legal data requirements by maintaining consistent, accurate records across all integrated systems."
+  },
+  {
+    q: "Critical processes in integrative programming that enable seamless data exchange between systems with differing structures or formats.",
+    a: "Data transformation and mapping",
+    choices: ["ETL pipeline","Data transformation and mapping","Schema validation","Database connectivity"],
+    explain: "Data transformation and mapping convert data between different formats and structures so systems with different schemas can exchange information."
+  },
+  {
+    q: "A lightweight, human-readable data format widely used for web APIs, using key-value pairs like {\"name\": \"John\", \"age\": 30}.",
+    a: "JSON",
+    choices: ["XML","JSON","CSV","YAML"],
+    explain: "JSON (JavaScript Object Notation) uses key-value pairs, is minimal in syntax, and is the dominant format for REST APIs and web applications."
+  },
+  {
+    q: "A structured, hierarchical data format ideal for complex data with metadata, using tags like <person><name>John</name></person>.",
+    a: "XML",
+    choices: ["JSON","XML","CSV","Protocol Buffers"],
+    explain: "XML (Extensible Markup Language) uses nested tags to represent hierarchical data and supports metadata and namespaces, making it ideal for enterprise systems."
+  },
+  {
+    q: "A simple, tabular plain-text format used for spreadsheets or databases, where values are separated by commas.",
+    a: "CSV",
+    choices: ["XML","JSON","CSV","YAML"],
+    explain: "CSV (Comma-Separated Values) is a flat, row-column format that can be opened in Excel or Google Sheets and is ideal for bulk tabular data transfer."
+  },
+  {
+    q: "The process of transforming data from a source format to a target format to meet specific system requirements, such as converting 'first_name' to 'name'.",
+    a: "Data mapping",
+    choices: ["Data mapping","Data enrichment","Data aggregation","Schema validation"],
+    explain: "Data mapping aligns fields between source and target formats, handling renaming, type conversion, and aggregation to ensure system compatibility."
+  },
+  {
+    q: "Challenges in this process include handling missing data, resolving type mismatches, and adapting to schema evolution.",
+    a: "Data mapping",
+    choices: ["Data loading","Data mapping","Data extraction","Data validation"],
+    explain: "Data mapping faces challenges whenever source and target schemas differ — missing fields, incompatible types, and structural changes all require careful handling."
+  },
+  {
+    q: "The use of JSON Schema or XSD for XML to define data structure and ensure validity before processing plays a crucial role in this.",
+    a: "Standardization techniques",
+    choices: ["Standardization techniques","Data enrichment","ETL loading","Data aggregation"],
+    explain: "Standardization techniques use schemas to enforce structure and tools like XSLT or Pandas to automate transformation, ensuring consistency across systems."
+  },
+  {
+    q: "An international standard for dates that helps maintain consistency across systems and reduces ambiguity in interpretation.",
+    a: "ISO 8601",
+    choices: ["ISO 8601","XSD","XSLT","DTD"],
+    explain: "ISO 8601 defines a universal date/time format (e.g., 2024-01-15) that eliminates regional ambiguity when systems exchange date values."
+  },
+  {
+    q: "A tool that supports automated data transformation for XML using Extensible Stylesheet Language.",
+    a: "XSLT",
+    choices: ["Pandas","XSLT","ISO 8601","XSD"],
+    explain: "XSLT (Extensible Stylesheet Language Transformations) is specifically designed to transform XML documents into other formats or structures automatically."
+  },
+  {
+    q: "A Python library used for automated transformation and handling of CSV and JSON formats.",
+    a: "Pandas",
+    choices: ["XSLT","Pandas","NumPy","BeautifulSoup"],
+    explain: "Pandas is a widely used Python data library that provides powerful tools for reading, transforming, and writing CSV and JSON data."
+  },
+  {
+    q: "A foundational data integration concept that stands for Extract, Transform, Load, used in data warehousing and business intelligence.",
+    a: "ETL",
+    choices: ["ETL","ELT","API","CDC"],
+    explain: "ETL is the standard three-phase pipeline: extract data from sources, transform it to meet business rules, and load it into a centralized repository."
+  },
+  {
+    q: "ETL enables organizations to consolidate data into this centralized repository — typically a data warehouse or data lake — for querying and analysis.",
+    a: "Centralized repository",
+    choices: ["Staging area","Centralized repository","Source system","Data mart"],
+    explain: "A centralized repository is the single destination (like a data warehouse) where integrated data is stored and made available for analytics and reporting."
+  },
+  {
+    q: "The ETL phase that involves retrieving data from one or more source systems without significantly affecting their performance or integrity.",
+    a: "Extract phase",
+    choices: ["Load phase","Transform phase","Extract phase","Staging phase"],
+    explain: "The Extract phase carefully pulls raw data from source systems into a staging area, prioritizing minimal disruption to those operational systems."
+  },
+  {
+    q: "The goal of extraction is to capture raw data as accurately as possible and move it into this area for further processing.",
+    a: "Staging area",
+    choices: ["Data warehouse","Staging area","Data lake","Data mart"],
+    explain: "The staging area is a temporary holding zone where extracted raw data sits before transformation begins — it isolates ETL work from source systems."
+  },
+  {
+    q: "A relational database system listed as a common data source for ETL extraction.",
+    a: "MySQL",
+    choices: ["MongoDB","MySQL","Cassandra","Redis"],
+    explain: "MySQL is a relational database (SQL-based) and one of the most common source systems from which ETL pipelines extract structured data."
+  },
+  {
+    q: "A NoSQL database listed as a common data source for ETL extraction alongside Cassandra.",
+    a: "MongoDB",
+    choices: ["Oracle","MongoDB","BigQuery","Snowflake"],
+    explain: "MongoDB is a document-oriented NoSQL database frequently used as an ETL source for unstructured or semi-structured data."
+  },
+  {
+    q: "An extraction strategy where all data is extracted every time the ETL process runs — simple to implement but inefficient for large datasets.",
+    a: "Full extraction",
+    choices: ["Incremental extraction","Real-time extraction","Full extraction","CDC extraction"],
+    explain: "Full extraction re-pulls every record each run. It's simple but wastes resources on large datasets since unchanged data is re-processed unnecessarily."
+  },
+  {
+    q: "An extraction strategy that uses timestamps, version numbers, or change data capture (CDC) to pull only new or modified data.",
+    a: "Incremental extraction",
+    choices: ["Full extraction","Incremental extraction","Real-time extraction","Batch extraction"],
+    explain: "Incremental extraction is efficient because it only retrieves records that have changed since the last run, reducing load and processing time."
+  },
+  {
+    q: "An extraction strategy where data is captured continuously or at very short intervals, used in streaming and real-time analytics systems.",
+    a: "Real-time extraction",
+    choices: ["Full extraction","Incremental extraction","Real-time extraction","Scheduled extraction"],
+    explain: "Real-time extraction feeds data into pipelines as events happen, enabling up-to-the-second analytics in systems like fraud detection or live dashboards."
+  },
+  {
+    q: "A challenge in the Extract phase involving delays and limitations in moving data across networks from source systems.",
+    a: "Network latency and bandwidth limitations",
+    choices: ["Schema evolution","Network latency and bandwidth limitations","Data source availability","Access control"],
+    explain: "Network latency can slow down extraction significantly, especially when pulling large volumes of data from remote or cloud-hosted source systems."
+  },
+  {
+    q: "The core phase of ETL that converts raw extracted data into a format suitable for analysis and storage, ensuring quality and consistency.",
+    a: "Transform phase",
+    choices: ["Extract phase","Load phase","Transform phase","Cleansing phase"],
+    explain: "The Transform phase is where data cleaning, validation, standardization, enrichment, and business rule application all occur before loading."
+  },
+  {
+    q: "A transformation operation involving removing duplicates, handling missing or null values, and correcting invalid or inconsistent entries.",
+    a: "Data cleaning",
+    choices: ["Data validation","Data enrichment","Data cleaning","Data aggregation"],
+    explain: "Data cleaning ensures data quality by eliminating dirty records — duplicates, nulls, and corrupted entries — before the data is used for analysis."
+  },
+  {
+    q: "A transformation operation that enforces data types, checks value ranges and formats, and ensures referential integrity.",
+    a: "Data validation",
+    choices: ["Data cleaning","Data validation","Data standardization","Data enrichment"],
+    explain: "Data validation verifies that data conforms to expected rules — correct types, valid ranges, and proper relationships between linked records."
+  },
+  {
+    q: "A transformation operation that converts date/time formats, normalizes units of measurement, and standardizes text cases and codes.",
+    a: "Data standardization",
+    choices: ["Data cleaning","Data validation","Data standardization","Data aggregation"],
+    explain: "Data standardization ensures all data follows uniform formats across sources, preventing interpretation errors when data from different systems is merged."
+  },
+  {
+    q: "A transformation operation that combines data from multiple sources, adds derived or calculated fields, and applies lookup tables.",
+    a: "Data enrichment",
+    choices: ["Data aggregation","Data enrichment","Data cleaning","Data mapping"],
+    explain: "Data enrichment enhances raw data by adding context — joining related datasets, computing new fields, or appending reference data."
+  },
+  {
+    q: "A transformation operation that involves summarizing data through totals, averages, and counts, grouped by time, location, or category.",
+    a: "Data aggregation",
+    choices: ["Data enrichment","Data standardization","Data aggregation","Data validation"],
+    explain: "Data aggregation rolls up detailed records into summaries — like daily sales totals or monthly averages — making large datasets more manageable for analysis."
+  },
+  {
+    q: "A transformation operation that maps raw values to business-defined categories and applies scoring, ranking, or classification logic.",
+    a: "Business rule application",
+    choices: ["Data enrichment","Business rule application","Data aggregation","Data standardization"],
+    explain: "Business rule application encodes organizational logic into the pipeline — for example, classifying customers into tiers based on purchase history."
+  },
+  {
+    q: "A transformation style where data is transformed in a staging area before being loaded into the warehouse.",
+    a: "ETL (transform before load)",
+    choices: ["ELT (transform after load)","ETL (transform before load)","Streaming load","Batch load"],
+    explain: "In traditional ETL, transformation happens in a dedicated staging environment before clean data moves into the warehouse, keeping the warehouse lean."
+  },
+  {
+    q: "A transformation style where raw data is loaded into the target system first, then transformed using its processing power — common in cloud platforms.",
+    a: "ELT (transform after load)",
+    choices: ["ETL (transform before load)","ELT (transform after load)","Incremental load","Full extraction"],
+    explain: "ELT leverages the computing power of cloud data warehouses (like BigQuery or Snowflake) to transform data after loading, enabling greater flexibility."
+  },
+  {
+    q: "A challenge in transformation where intricate organizational policies, calculations, and domain-specific requirements must be consistently applied across datasets.",
+    a: "Handling complex business logic",
+    choices: ["Schema evolution","Handling complex business logic","Data traceability","Performance issues"],
+    explain: "Complex business logic in transformations must accurately reflect real-world rules; errors here propagate downstream and corrupt analytical results."
+  },
+  {
+    q: "A challenge in transformation where organizations must verify correctness and track data lineage from source systems to final outputs for auditing.",
+    a: "Ensuring data accuracy and traceability",
+    choices: ["Schema evolution","Handling complex business logic","Ensuring data accuracy and traceability","Performance issues"],
+    explain: "Data traceability (lineage) lets auditors trace every value back to its origin, which is essential for compliance, debugging, and building trust in reports."
+  },
+  {
+    q: "A transformation challenge where changes in source data structures — such as added fields or deprecated attributes — can disrupt existing ETL pipelines.",
+    a: "Schema evolution and versioning",
+    choices: ["Data traceability","Business logic complexity","Schema evolution and versioning","Real-time streaming"],
+    explain: "Schema evolution occurs when source systems change their data structure. Pipelines must detect and handle these changes to avoid failures or data loss."
+  },
+  {
+    q: "The ETL phase that involves inserting transformed data into a target system to make it available for querying, reporting, and analytics.",
+    a: "Load phase",
+    choices: ["Extract phase","Transform phase","Load phase","Mapping phase"],
+    explain: "The Load phase is the final step where clean, transformed data is written into the destination system — completing the ETL pipeline."
+  },
+  {
+    q: "A cloud data warehouse listed as a target system in the Load phase, alongside BigQuery and Redshift.",
+    a: "Snowflake",
+    choices: ["MongoDB","Cassandra","Snowflake","MySQL"],
+    explain: "Snowflake is a popular cloud data warehouse and a primary ETL load target, optimized for large-scale analytical queries."
+  },
+  {
+    q: "Department-specific subsets of a data warehouse used as target systems in ETL loading.",
+    a: "Data marts",
+    choices: ["Data lakes","Data marts","Staging areas","Source systems"],
+    explain: "Data marts are smaller, subject-specific versions of a data warehouse designed for a particular team or business function like sales or finance."
+  },
+  {
+    q: "Storage for raw and semi-structured data used as a target system in ETL, distinct from a data warehouse.",
+    a: "Data lake",
+    choices: ["Data warehouse","Data lake","Data mart","Staging area"],
+    explain: "A data lake stores data in its raw, unprocessed form — including semi-structured and unstructured data — allowing flexible future analysis."
+  },
+  {
+    q: "A loading strategy where the entire dataset is replaced each time — simple but resource-intensive.",
+    a: "Full load",
+    choices: ["Incremental load","Upsert","Full load","Streaming load"],
+    explain: "Full load truncates and reloads the entire target table each run. It's simple to implement but inefficient for large tables where most data hasn't changed."
+  },
+  {
+    q: "A loading strategy where only new or updated records are inserted or updated — more efficient and scalable than replacing everything.",
+    a: "Incremental load",
+    choices: ["Full load","Incremental load","Upsert","Batch load"],
+    explain: "Incremental load tracks changes since the last run and only processes delta records, dramatically reducing time and compute costs."
+  },
+  {
+    q: "A loading strategy that updates existing records and inserts new ones simultaneously, commonly used in slowly changing dimensions.",
+    a: "Upsert",
+    choices: ["Full load","Incremental load","Upsert","Streaming load"],
+    explain: "Upsert (update + insert) is ideal for dimension tables where records may be new or may already exist and need updating — common in data warehouse design."
+  },
+  {
+    q: "Loads that run on scheduled intervals (hourly, daily) as opposed to continuous streaming loads that support real-time analytics.",
+    a: "Batch loads",
+    choices: ["Streaming loads","Upserts","Batch loads","Full loads"],
+    explain: "Batch loads process accumulated data at fixed intervals, which is efficient for non-urgent reporting but introduces latency compared to real-time streaming."
+  },
+  {
+    q: "A markup language designed to store and transport data in a structured, self-describing format using tags to define elements and support hierarchical representation.",
+    a: "XML",
+    choices: ["HTML","XML","JSON","SGML"],
+    explain: "XML (eXtensible Markup Language) uses custom tags to wrap data elements, making documents self-describing and platform-independent."
+  },
+  {
+    q: "A characteristic of XML meaning it can be used across different programming languages and operating systems without modification.",
+    a: "Language and platform-independent",
+    choices: ["Self-descriptive through tags","Language and platform-independent","Lightweight and fast","Tabular and flat"],
+    explain: "XML's text-based format with no runtime dependencies means any language or OS can read and write XML, making it ideal for enterprise integration."
+  },
+  {
+    q: "An XML validation mechanism using Document Type Definition or XML Schema to verify a document's structure and content.",
+    a: "DTD or XSD validation",
+    choices: ["JSON Schema","ISO 8601","DTD or XSD validation","XSLT"],
+    explain: "DTD (Document Type Definition) and XSD (XML Schema Definition) define the allowed structure and data types in an XML document, enabling automated validation."
+  },
+  {
+    q: "A limitation of XML compared to JSON that describes its larger file size due to repetitive opening and closing tags.",
+    a: "Verbose and larger file size",
+    choices: ["No schema validation","Slower parsing","Verbose and larger file size","No platform support"],
+    explain: "XML's tag-based syntax requires both opening and closing tags for every element, making files significantly larger than equivalent JSON representations."
+  },
+  {
+    q: "A common use case for XML involving a protocol-based web service architecture that relies on XML message envelopes.",
+    a: "SOAP-based web services",
+    choices: ["REST APIs","SOAP-based web services","GraphQL APIs","JSON APIs"],
+    explain: "SOAP (Simple Object Access Protocol) uses XML as its message format exclusively, making XML essential for legacy enterprise web service integrations."
+  },
+  {
+    q: "A lightweight data-interchange format derived from JavaScript syntax, easy for humans to read and machines to parse, supported by nearly all programming languages.",
+    a: "JSON",
+    choices: ["YAML","JSON","XML","CSV"],
+    explain: "JSON was derived from JavaScript object literal syntax but became language-agnostic, becoming the universal standard for API data exchange."
+  },
+  {
+    q: "A limitation of JSON noting it lacks built-in structure enforcement and requires external extensions to validate data.",
+    a: "No built-in schema validation",
+    choices: ["Slower parsing","No built-in schema validation","Verbose syntax","No platform support"],
+    explain: "Unlike XML with XSD, JSON has no native schema validation. External tools like JSON Schema must be added to enforce structure and data types."
+  },
+  {
+    q: "A common use case for JSON related to communication between independent, small-scale backend services in a distributed architecture.",
+    a: "Microservices communication",
+    choices: ["SOAP services","ETL pipelines","Microservices communication","Configuration with DTD"],
+    explain: "Microservices architectures rely on lightweight, fast message exchange — JSON's minimal overhead makes it the preferred format for inter-service communication."
+  },
+  {
+    q: "A plain-text format where each line represents a row and values are separated by commas or other delimiters like semicolons.",
+    a: "CSV",
+    choices: ["XML","JSON","CSV","TSV"],
+    explain: "CSV (Comma-Separated Values) is the simplest tabular data format — no schema, no types, just delimited rows that spreadsheet tools can open instantly."
+  },
+  {
+    q: "A characteristic of CSV describing its non-hierarchical, row-column organization with no nested data structures.",
+    a: "Flat, tabular structure",
+    choices: ["Self-descriptive","Flat, tabular structure","Hierarchical nesting","Schema-enforced"],
+    explain: "CSV is inherently flat — every row has the same columns and there is no concept of nesting or relationships between values within a single file."
+  },
+  {
+    q: "A limitation of CSV meaning it cannot natively represent parent-child or nested relationships within data.",
+    a: "No support for hierarchical data",
+    choices: ["Verbose and larger file size","Slower parsing","No support for hierarchical data","No schema validation"],
+    explain: "CSV's flat structure means that data with nested or related structures must be flattened or split into multiple files — unlike JSON or XML."
+  },
+  {
+    q: "A common use case for CSV in data science and academic research involving collections of observations and variables.",
+    a: "Statistical and research datasets",
+    choices: ["SOAP services","ETL pipelines","Microservices communication","Statistical and research datasets"],
+    explain: "CSV is the universal format for sharing statistical data — tools like R, SPSS, and Python's Pandas natively read CSV for research and analysis."
+  }
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let questions, current, score, results;
+
+function init() {
+  questions = shuffle(QUESTIONS).map(q => ({
+    ...q,
+    shuffledChoices: shuffle(q.choices)
+  }));
+  current = 0;
+  score = 0;
+  results = [];
+  document.getElementById('results-card').classList.remove('show');
+  document.getElementById('quiz-card').style.display = '';
+  document.getElementById('progress-wrap') && null;
+  document.querySelector('.progress-wrap').style.display = '';
+  renderQ();
+}
+
+function renderQ() {
+  const q = questions[current];
+  const n = current + 1;
+  document.getElementById('q-num').textContent = String(n).padStart(2,'0') + ' / 50';
+  document.getElementById('prog-label').textContent = `Question ${n} of 50`;
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+  document.getElementById('prog-fill').style.width = ((current / 50) * 100) + '%';
+  document.getElementById('q-text').textContent = q.q;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback-box';
+  document.getElementById('next-btn').classList.remove('show');
+
+  const choices = document.getElementById('choices');
+  choices.innerHTML = '';
+  q.shuffledChoices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="letter">${['A','B','C','D'][i]}</span><span>${c}</span>`;
+    btn.onclick = () => selectAnswer(c);
+    choices.appendChild(btn);
+  });
+}
+
+function selectAnswer(chosen) {
+  const q = questions[current];
+  const correct = chosen === q.a;
+  if (correct) score++;
+  results.push({ correct, chosen, answer: q.a });
+
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach(btn => {
+    btn.disabled = true;
+    const label = btn.querySelector('span:last-child').textContent;
+    if (label === q.a) btn.classList.add('correct');
+    else if (label === chosen && !correct) btn.classList.add('wrong');
+    else btn.classList.add('dimmed');
+  });
+
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    fb.className = 'feedback-box correct';
+    document.getElementById('fb-title').textContent = '✓  Correct!';
+    document.getElementById('fb-ans').textContent = '';
+    document.getElementById('fb-explain').textContent = q.explain;
+  } else {
+    fb.className = 'feedback-box wrong';
+    document.getElementById('fb-title').textContent = '✗  Incorrect';
+    document.getElementById('fb-ans').textContent = `Correct answer: ${q.a}`;
+    document.getElementById('fb-explain').textContent = q.explain;
+  }
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.textContent = current === 49 ? 'See Results →' : 'Next question →';
+  nextBtn.classList.add('show');
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+}
+
+function nextQ() {
+  current++;
+  if (current >= 50) {
+    showResults();
+  } else {
+    renderQ();
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz-card').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+
+  const pct = Math.round((score / 50) * 100);
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('res-total').textContent = '/ 50';
+  document.getElementById('score-circle').style.setProperty('--pct', pct + '%');
+
+  let grade, msg;
+  if (pct >= 90) { grade = 'Outstanding!'; msg = 'Excellent mastery of data integration concepts.'; }
+  else if (pct >= 80) { grade = 'Great Job!'; msg = 'Strong understanding with a few gaps to review.'; }
+  else if (pct >= 70) { grade = 'Good Work'; msg = 'Solid foundation — review the missed topics.'; }
+  else if (pct >= 60) { grade = 'Passing'; msg = 'You passed, but a thorough review is recommended.'; }
+  else { grade = 'Keep Studying'; msg = 'Review Module 2 thoroughly and try again.'; }
+
+  document.getElementById('res-grade').textContent = grade;
+  document.getElementById('res-msg').textContent = msg;
+
+  const wrong = results.filter(r => !r.correct).length;
+  document.getElementById('st-c').textContent = `✓ ${score} correct`;
+  document.getElementById('st-w').textContent = `✗ ${wrong} wrong`;
+  document.getElementById('st-p').textContent = `${pct}%`;
+
+  const dotGrid = document.getElementById('dot-grid');
+  dotGrid.innerHTML = results.map(r =>
+    `<span style="background:${r.correct ? 'var(--green)' : 'var(--red)'};" title="${r.correct ? 'Correct' : 'Wrong: ' + r.answer}"></span>`
+  ).join('');
+
+  document.getElementById('results-card').classList.add('show');
+  document.getElementById('prog-fill').style.width = '100%';
+}
+
+function restart() {
+  document.querySelector('.progress-wrap').style.display = '';
+  init();
+}
+
+init();
+</script>
+</body>
+</html>

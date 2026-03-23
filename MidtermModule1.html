@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1: Integrative Programming Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2330;
+    --border: #2a3045;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --accentsoft: rgba(249,115,22,0.15);
+    --green: #22c55e;
+    --red: #ef4444;
+    --green-bg: #052010;
+    --red-bg: #1a0505;
+    --text: #e8ecf5;
+    --muted: #7b82a0;
+    --dim: #3d4560;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+    overflow-x: hidden;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed; top: -200px; left: -200px;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed; bottom: -200px; right: -200px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(251,146,60,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  header { width: 100%; max-width: 720px; text-align: center; margin-bottom: 40px; }
+  .overline {
+    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif; font-size: clamp(26px,5vw,42px); font-weight: 800;
+    line-height: 1.1; margin-bottom: 10px;
+    background: linear-gradient(135deg, #e8ecf5 0%, #fb923c 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { font-size: 14px; color: var(--muted); }
+
+  .progress-wrap { width: 100%; max-width: 720px; margin-bottom: 24px; }
+  .progress-meta { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .progress-meta span { font-size: 13px; color: var(--muted); }
+  .score-live { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--text) !important; }
+  .progress-track { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1); width: 0%;
+  }
+
+  .card {
+    width: 100%; max-width: 720px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 40px;
+    animation: slideIn 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .q-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 99px; padding: 4px 12px;
+    font-size: 12px; color: var(--muted);
+    font-family: 'Syne', sans-serif; font-weight: 600; margin-bottom: 20px;
+  }
+  .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .q-text { font-size: 18px; line-height: 1.65; color: var(--text); font-weight: 400; margin-bottom: 32px; min-height: 60px; }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    text-align: left; width: 100%; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14.5px; font-weight: 300; line-height: 1.5;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--accent); background: #1c1a16; transform: translateX(3px); }
+  .choice-btn:disabled { cursor: default; transform: none; }
+  .letter {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px;
+    background: var(--border); display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; color: var(--muted);
+    transition: background 0.15s, color 0.15s; margin-top: 1px;
+  }
+  .choice-btn:hover:not(:disabled) .letter { background: var(--accent); color: #fff; }
+  .choice-btn.correct { border-color: var(--green); background: var(--green-bg); }
+  .choice-btn.correct .letter { background: var(--green); color: #fff; }
+  .choice-btn.wrong { border-color: var(--red); background: var(--red-bg); }
+  .choice-btn.wrong .letter { background: var(--red); color: #fff; }
+  .choice-btn.dimmed { opacity: 0.35; }
+
+  .feedback-box {
+    margin-top: 20px; border-radius: 12px; padding: 16px 20px;
+    display: none; animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .feedback-box.correct { display: block; background: var(--green-bg); border: 1px solid rgba(34,197,94,0.3); }
+  .feedback-box.wrong { display: block; background: var(--red-bg); border: 1px solid rgba(239,68,68,0.3); }
+  .fb-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+  .feedback-box.correct .fb-title { color: var(--green); }
+  .feedback-box.wrong .fb-title { color: var(--red); }
+  .fb-ans { font-size: 13.5px; color: var(--text); margin-bottom: 6px; font-weight: 400; }
+  .fb-explain { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .card-footer { margin-top: 28px; display: flex; justify-content: flex-end; }
+  .next-btn {
+    display: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 10px; padding: 12px 28px;
+    color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    letter-spacing: 0.05em; cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+  }
+  .next-btn:hover { opacity: 0.9; transform: scale(0.98); }
+  .next-btn.show { display: inline-flex; align-items: center; gap: 8px; }
+
+  .results-card {
+    width: 100%; max-width: 720px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 48px 40px; text-align: center;
+    display: none; animation: slideIn 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .results-card.show { display: block; }
+  .score-circle {
+    width: 140px; height: 140px; border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto 24px; position: relative; background: var(--surface2);
+  }
+  .score-circle::before {
+    content: ''; position: absolute; inset: -3px; border-radius: 50%;
+    background: conic-gradient(var(--accent) var(--pct), var(--border) 0%); z-index: -1;
+  }
+  .score-number { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; color: var(--text); line-height: 1; }
+  .score-total { font-size: 13px; color: var(--muted); }
+  .results-card h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+  .grade-msg { font-size: 15px; color: var(--muted); margin-bottom: 28px; }
+  .stats-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+  .stat-pill { padding: 8px 20px; border-radius: 99px; font-size: 13px; border: 1px solid; }
+  .stat-pill.c { background: var(--green-bg); border-color: rgba(34,197,94,0.3); color: var(--green); }
+  .stat-pill.w { background: var(--red-bg); border-color: rgba(239,68,68,0.3); color: var(--red); }
+  .stat-pill.p { background: var(--surface2); border-color: var(--border); color: var(--muted); }
+  .dot-grid { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 28px; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .dot-grid span { width: 10px; height: 10px; border-radius: 50%; }
+  .res-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .retry-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 10px; padding: 12px 28px;
+    color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .retry-btn:hover { opacity: 0.9; }
+  .home-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 28px;
+    color: var(--text); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    cursor: pointer; transition: border-color 0.15s; text-decoration: none; display: inline-flex; align-items: center;
+  }
+  .home-btn:hover { border-color: var(--dim); }
+  @media(max-width:600px){ .card,.results-card{padding:28px 18px} .q-text{font-size:16px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="overline">Module 1</div>
+  <h1>Introduction to Integrative Programming</h1>
+  <p class="subtitle">50 questions · One at a time · Instant feedback</p>
+</header>
+
+<div class="progress-wrap" id="prog-wrap">
+  <div class="progress-meta">
+    <span id="prog-label">Question 1 of 50</span>
+    <span class="score-live" id="score-live">Score: 0</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+</div>
+
+<div class="card" id="quiz-card">
+  <div class="q-badge"><span class="dot"></span><span id="q-num">01 / 50</span></div>
+  <div class="q-text" id="q-text"></div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback-box" id="feedback">
+    <div class="fb-title" id="fb-title"></div>
+    <div class="fb-ans" id="fb-ans"></div>
+    <div class="fb-explain" id="fb-explain"></div>
+  </div>
+  <div class="card-footer">
+    <button class="next-btn" id="next-btn" onclick="nextQ()">Next question →</button>
+  </div>
+</div>
+
+<div class="results-card" id="results-card">
+  <div class="score-circle" id="score-circle">
+    <div class="score-number" id="res-score">0</div>
+    <div class="score-total">/ 50</div>
+  </div>
+  <h2 id="res-grade">—</h2>
+  <p class="grade-msg" id="res-msg"></p>
+  <div class="stats-row">
+    <div class="stat-pill c" id="st-c">✓ 0 correct</div>
+    <div class="stat-pill w" id="st-w">✗ 0 wrong</div>
+    <div class="stat-pill p" id="st-p">0%</div>
+  </div>
+  <div class="dot-grid" id="dot-grid"></div>
+  <div class="res-btns">
+    <button class="retry-btn" onclick="restart()">Retake Quiz</button>
+    <a class="home-btn" href="index.html">← Choose Module</a>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "A software development approach that combines multiple programming languages, paradigms, tools, or platforms to build cohesive and efficient applications.",
+    a: "Integrative programming",
+    choices: ["Modular programming","Integrative programming","Object-oriented programming","Microservices architecture"],
+    explain: "Integrative programming is defined as combining multiple languages, paradigms, and tools — like JavaScript, Python, and SQL — to leverage each component's strengths in a single cohesive system."
+  },
+  {
+    q: "A reason to integrate applications where different languages and platforms are used for their specific strengths — e.g., Python for data analysis and JavaScript for front-end.",
+    a: "Leveraging specialized tools",
+    choices: ["Cross-platform compatibility","Leveraging specialized tools","Faster development","Scalability"],
+    explain: "Leveraging specialized tools means using the best language/platform for each task rather than forcing one tool to do everything — a core motivation for integration."
+  },
+  {
+    q: "A benefit of integration that allows applications to access payment gateways, mapping services, or machine learning models by connecting to external services.",
+    a: "Improved functionality",
+    choices: ["Scalability","Faster development","Improved functionality","Data integration"],
+    explain: "Improved functionality comes from integrating third-party services and APIs that add capabilities the app doesn't have on its own — like payments or mapping."
+  },
+  {
+    q: "A benefit of integration associated with microservices architecture, where each service can be developed, deployed, and scaled independently.",
+    a: "Scalability",
+    choices: ["Improved functionality","Scalability","Cross-platform compatibility","Faster development"],
+    explain: "Scalability is a key benefit of microservices-based integration — each service scales on its own without impacting the others, improving resource management."
+  },
+  {
+    q: "A benefit of integration achieved by using libraries, frameworks, and services so developers can focus on unique features rather than rebuilding common solutions.",
+    a: "Faster development",
+    choices: ["Scalability","Faster development","Data integration","Improved functionality"],
+    explain: "Faster development is achieved by reusing existing libraries and services, allowing teams to accelerate delivery instead of reinventing the wheel each time."
+  },
+  {
+    q: "A benefit of integration that enables applications to run on multiple devices and operating systems, such as combining web and mobile frameworks.",
+    a: "Cross-platform compatibility",
+    choices: ["Scalability","Faster development","Cross-platform compatibility","Data integration"],
+    explain: "Cross-platform compatibility means the app can reach users on any device or OS by integrating technologies that span platforms — web, iOS, Android, etc."
+  },
+  {
+    q: "A benefit of integration involving combining multiple data sources to enable comprehensive analysis, better decision-making, and business intelligence.",
+    a: "Data integration and analysis",
+    choices: ["Scalability","Cross-platform compatibility","Faster development","Data integration and analysis"],
+    explain: "Data integration and analysis allows organizations to pull data from diverse systems into one view, enabling richer insights and evidence-based decision-making."
+  },
+  {
+    q: "A challenge of integrative programming where managing multiple languages, frameworks, or platforms requires broad expertise and coordination.",
+    a: "Increased complexity",
+    choices: ["Security risks","Increased complexity","Performance overhead","Debugging difficulty"],
+    explain: "Increased complexity is the main challenge — juggling multiple technologies means developers need broad expertise and careful coordination of diverse components."
+  },
+  {
+    q: "A challenge where mismatched data formats or protocol conflicts arise when connecting, for example, a Java microservice to a Python API.",
+    a: "Integration issues",
+    choices: ["Integration issues","Debugging difficulty","Security risks","Dependency management"],
+    explain: "Integration issues occur when systems use incompatible formats or protocols — like JSON vs XML or REST vs SOAP — requiring extra work to bridge the gap."
+  },
+  {
+    q: "A challenge in integrative programming caused by the need for middleware or frequent data transformations that can slow down the system.",
+    a: "Performance overhead",
+    choices: ["Security risks","Increased complexity","Performance overhead","Versioning conflicts"],
+    explain: "Performance overhead results from the extra processing required by middleware layers or repeated data conversions between systems."
+  },
+  {
+    q: "A challenge where updates to one component, like a third-party library, may break compatibility with others and require extensive testing.",
+    a: "Maintenance difficulties",
+    choices: ["Debugging difficulty","Maintenance difficulties","Security risks","Latency issues"],
+    explain: "Maintenance difficulties arise because a change in one integrated component can ripple through and break others, requiring thorough regression testing."
+  },
+  {
+    q: "A challenge where errors may span multiple layers or technologies, making it time-consuming to locate the root cause.",
+    a: "Debugging difficulty",
+    choices: ["Performance overhead","Debugging difficulty","Security risks","Vendor lock-in"],
+    explain: "Debugging across heterogeneous environments is hard because an error might originate in one language, pass through middleware, and surface in another system."
+  },
+  {
+    q: "A challenge where each external API or service connection point introduces potential vulnerabilities to the system.",
+    a: "Security risks",
+    choices: ["Latency issues","Maintenance difficulties","Security risks","Integration issues"],
+    explain: "Security risks grow with each new integration point — every external API or service is a potential attack vector that must be secured and monitored."
+  },
+  {
+    q: "A challenge in integrative programming where version conflicts or incompatibilities arise between libraries in a project using Node.js and Python.",
+    a: "Dependency management",
+    choices: ["Latency issues","Dependency management","Vendor lock-in","Configuration management"],
+    explain: "Dependency management is difficult because different parts of the system may require conflicting library versions, causing runtime errors or build failures."
+  },
+  {
+    q: "A challenge where teams may use varied tools, IDEs, or environments, leading to inconsistencies in configuration, testing, or deployment.",
+    a: "Inconsistent development environment",
+    choices: ["Inconsistent development environment","Skill gaps","Latency in cross-system communication","Testing complexity"],
+    explain: "Inconsistent development environments mean that what works on one developer's machine may not work on another's, complicating collaboration and deployment."
+  },
+  {
+    q: "A challenge where teams need proficiency in multiple languages or frameworks, straining resources if developers lack certain skills.",
+    a: "Learning curve and skill gaps",
+    choices: ["Dependency management","Learning curve and skill gaps","Vendor lock-in","Configuration management"],
+    explain: "Skill gaps occur when a team is strong in some technologies but not others required by the integration — slowing development or increasing training costs."
+  },
+  {
+    q: "A challenge involving the conversion of data when transferring between systems, such as from C++ to JavaScript, which can cause errors or performance bottlenecks.",
+    a: "Data serialization and deserialization issues",
+    choices: ["Data serialization and deserialization issues","Latency in cross-system communication","Versioning conflicts","Error handling disparities"],
+    explain: "Serialization (e.g., converting to JSON) and deserialization (parsing it back) introduce overhead and risk of data loss if not carefully handled across systems."
+  },
+  {
+    q: "A challenge where distributed systems or microservices hosted in different regions experience delayed communication due to network distance.",
+    a: "Latency in cross-system communication",
+    choices: ["Performance overhead","Latency in cross-system communication","Security risks","Resource overhead"],
+    explain: "Latency in cross-system communication occurs when networked services are geographically separated or make frequent API calls, slowing overall response times."
+  },
+  {
+    q: "A challenge where a new API version, deprecated endpoint, or changed feature breaks existing functionality in an integrated system.",
+    a: "Versioning conflicts",
+    choices: ["Dependency management","Versioning conflicts","Vendor lock-in","Documentation gaps"],
+    explain: "Versioning conflicts arise when third-party APIs change their structure — what worked with v1 may break with v2, requiring constant monitoring and updates."
+  },
+  {
+    q: "A challenge where using proprietary platforms or cloud services makes it difficult to switch providers without significant rework.",
+    a: "Vendor lock-in risks",
+    choices: ["Resource overhead","Versioning conflicts","Vendor lock-in risks","Licensing conflicts"],
+    explain: "Vendor lock-in occurs when deep integration with one provider's tools makes migration to another platform prohibitively expensive or complex."
+  },
+  {
+    q: "The most basic integration architecture where each system is directly connected to every other system it communicates with via custom-coded connections and no central middleware.",
+    a: "Point-to-Point integration",
+    choices: ["Hub-and-Spoke","Point-to-Point integration","Enterprise Service Bus","Microservices integration"],
+    explain: "Point-to-Point integration connects systems directly to each other without any central hub or middleware — simple for small setups but complex as systems grow."
+  },
+  {
+    q: "A term describing the tangled web of connections in Point-to-Point integration that grows rapidly — calculated as n(n-1)/2 — as more systems are added.",
+    a: "Spaghetti architecture",
+    choices: ["Hub-and-spoke","Spaghetti architecture","Tight coupling","ESB bottleneck"],
+    explain: "Spaghetti architecture describes the chaotic, entangled connection map that emerges in P2P integration when many systems are directly linked to each other."
+  },
+  {
+    q: "A centralized integration architecture where all communication between systems passes through one central system that manages, routes, and transforms data.",
+    a: "Hub-and-Spoke",
+    choices: ["Point-to-Point","Hub-and-Spoke","Event-Driven Architecture","API-Led Integration"],
+    explain: "Hub-and-Spoke uses one central hub (like an ESB) to manage all connections. Adding a new system only requires connecting it to the hub, not to every other system."
+  },
+  {
+    q: "A drawback of Hub-and-Spoke integration where if the central hub goes down, the entire integration network is disrupted.",
+    a: "Single point of failure",
+    choices: ["Vendor lock-in","Single point of failure","Tight coupling","Spaghetti architecture"],
+    explain: "The hub is the linchpin of Hub-and-Spoke integration — if it fails and there's no redundancy, all systems that rely on it for communication are cut off."
+  },
+  {
+    q: "A centralized software component that acts as a message broker and integration platform, facilitating data exchange, routing, transformation, and orchestration between services.",
+    a: "Enterprise Service Bus (ESB)",
+    choices: ["Hub-and-Spoke","API Gateway","Enterprise Service Bus (ESB)","Message Broker"],
+    explain: "An ESB is specialized middleware that handles message routing, transformation, and orchestration — it's the engine of enterprise-scale integration platforms like MuleSoft."
+  },
+  {
+    q: "An ESB advantage meaning systems are not tightly bound to each other, allowing easier updates and maintenance without breaking other components.",
+    a: "Loose coupling",
+    choices: ["Reusability","Loose coupling","Centralized control","Scalability"],
+    explain: "Loose coupling in ESB means each service interacts through the bus with standardized interfaces — changes to one service don't break others since they're not directly linked."
+  },
+  {
+    q: "An integration architecture where an application is broken into small, autonomous services that run in their own processes and communicate via lightweight protocols.",
+    a: "Microservices integration",
+    choices: ["SOA","Hub-and-Spoke","Microservices integration","Event-Driven Architecture"],
+    explain: "Microservices integration splits an app into independently deployable services — each handling one function — communicating via REST, gRPC, or message queues."
+  },
+  {
+    q: "A benefit of microservices architecture where failures in one service are contained and do not bring down the entire system.",
+    a: "Resilience",
+    choices: ["Scalability","Agility","Resilience","Flexibility"],
+    explain: "Resilience in microservices means that when one service crashes, others keep running — the failure is isolated, preventing a domino effect across the whole application."
+  },
+  {
+    q: "A software design pattern where system components communicate by producing and consuming events, rather than making direct requests to each other.",
+    a: "Event-Driven Architecture (EDA)",
+    choices: ["Microservices integration","Event-Driven Architecture (EDA)","API-Led Integration","SOA"],
+    explain: "EDA is built on events — when something happens, a service emits an event, and other services that care about that event react to it asynchronously."
+  },
+  {
+    q: "An EDA benefit where services operate independently without needing to know about each other's internal workings.",
+    a: "Loose coupling",
+    choices: ["Asynchronous processing","Extensibility","Loose coupling","Resilience"],
+    explain: "In EDA, services communicate through events via a broker — they never call each other directly, so they remain decoupled and can evolve independently."
+  },
+  {
+    q: "An EDA benefit where tasks are handled without waiting for immediate responses, improving overall performance and responsiveness.",
+    a: "Asynchronous processing",
+    choices: ["Loose coupling","Resilience","Asynchronous processing","Extensibility"],
+    explain: "Asynchronous processing lets services continue working without blocking while waiting for a response — ideal for high-throughput systems like order processing or messaging."
+  },
+  {
+    q: "An architectural approach that connects systems through a structured, layered set of APIs organized into System, Process, and Experience tiers.",
+    a: "API-Led Integration",
+    choices: ["SOA","ESB architecture","API-Led Integration","Cloud-Native Integration"],
+    explain: "API-Led Integration organizes APIs into logical layers — System APIs expose data, Process APIs implement business logic, and Experience APIs serve specific channels or apps."
+  },
+  {
+    q: "An architectural design pattern that structures software as a collection of loosely coupled, interoperable services communicating via SOAP or REST over a network.",
+    a: "Service-Oriented Architecture (SOA)",
+    choices: ["Microservices integration","API-Led Integration","Service-Oriented Architecture (SOA)","Event-Driven Architecture"],
+    explain: "SOA exposes business capabilities as reusable services that communicate over standard protocols — it's a predecessor to microservices and widely used in large enterprises."
+  },
+  {
+    q: "The process of combining data from different sources to provide a unified, consistent view of information for analytics, reporting, or business intelligence.",
+    a: "Data integration",
+    choices: ["Cloud-Native Integration","Hybrid Integration","Data integration","Hub-and-Spoke"],
+    explain: "Data integration consolidates data from databases, cloud platforms, files, and apps into one unified view — enabling BI, analytics, and informed decision-making."
+  },
+  {
+    q: "An integration approach built specifically for cloud environments, using containerized services, API gateways, event-driven messaging, and serverless functions.",
+    a: "Cloud-Native Integration",
+    choices: ["Hybrid Integration","Cloud-Native Integration","ESB Architecture","API-Led Integration"],
+    explain: "Cloud-Native Integration is designed from the ground up for the cloud — leveraging containers (Docker), orchestration (Kubernetes), and serverless to achieve elasticity."
+  },
+  {
+    q: "An integration approach that connects and coordinates systems residing across both on-premise infrastructure and cloud environments, acting as a bridge between legacy and modern systems.",
+    a: "Hybrid Integration",
+    choices: ["Cloud-Native Integration","Hybrid Integration","Data Integration","Point-to-Point"],
+    explain: "Hybrid Integration bridges on-premise legacy systems with cloud services — enabling organizations to modernize gradually without abandoning existing infrastructure."
+  },
+  {
+    q: "Standardized solutions or design blueprints for connecting different systems in a reliable, reusable, and efficient manner, popularized by the book by Gregor Hohpe and Bobby Woolf.",
+    a: "Integration patterns",
+    choices: ["Design patterns","Integration patterns","Architectural styles","Middleware protocols"],
+    explain: "Integration patterns are proven blueprints for solving common integration challenges — they were systematically documented in 'Enterprise Integration Patterns' by Hohpe and Woolf."
+  },
+  {
+    q: "A message pattern that describes the pathway where messages flow between sender and receiver, such as a queue or topic.",
+    a: "Message Channel",
+    choices: ["Message Router","Message Channel","Message Filter","Message Translator"],
+    explain: "A Message Channel is the conduit for messages between systems — it can be a queue (point-to-point delivery) or a topic (publish-subscribe broadcast)."
+  },
+  {
+    q: "A message pattern that directs messages to the correct destination based on rules or content.",
+    a: "Message Router",
+    choices: ["Message Channel","Message Filter","Message Router","Message Splitter"],
+    explain: "A Message Router inspects each message and routes it to the appropriate destination based on predefined rules or the message's content."
+  },
+  {
+    q: "A message pattern that excludes unwanted messages from being processed, filtering them out of the pipeline.",
+    a: "Message Filter",
+    choices: ["Message Router","Message Filter","Message Aggregator","Message Splitter"],
+    explain: "A Message Filter acts as a gatekeeper — messages that don't meet certain criteria are dropped, preventing irrelevant data from being processed downstream."
+  },
+  {
+    q: "A message pattern that converts message data from one format to one understood by the receiver.",
+    a: "Message Translator",
+    choices: ["Message Splitter","Message Aggregator","Message Translator","Data Mapper"],
+    explain: "A Message Translator transforms message format — for example, converting XML from a legacy system to JSON for a modern REST API — enabling system interoperability."
+  },
+  {
+    q: "A message pattern that breaks a complex message into smaller pieces for individual processing.",
+    a: "Message Splitter",
+    choices: ["Message Aggregator","Message Splitter","Message Filter","Message Router"],
+    explain: "A Message Splitter decomposes one large message (e.g., a batch order) into individual pieces (e.g., single orders) that can be processed separately."
+  },
+  {
+    q: "A message pattern that combines multiple related messages into one aggregated message.",
+    a: "Message Aggregator",
+    choices: ["Message Splitter","Message Aggregator","Content-Based Router","Message Filter"],
+    explain: "A Message Aggregator collects multiple related messages (e.g., partial results) and combines them into one complete message for downstream processing."
+  },
+  {
+    q: "A message pattern that sends messages to different destinations based on their content or data fields.",
+    a: "Content-Based Router",
+    choices: ["Message Router","Content-Based Router","Recipient List","Dynamic Router"],
+    explain: "A Content-Based Router reads message contents and routes accordingly — for example, routing orders over $1000 to a premium fulfillment queue."
+  },
+  {
+    q: "A transformation pattern that converts one message format to another, such as XML to JSON or SOAP to REST.",
+    a: "Message Translator",
+    choices: ["Data Mapper","Canonical Data Model","Message Translator","Normalizer"],
+    explain: "In the transformation context, Message Translator handles format conversion — the bridge that lets systems speaking different 'languages' exchange data."
+  },
+  {
+    q: "A transformation pattern that maps source data fields to target data fields, even when names or types differ between systems.",
+    a: "Data Mapper",
+    choices: ["Message Translator","Data Mapper","Canonical Data Model","Enricher"],
+    explain: "A Data Mapper defines field-level mappings — for example, source field 'cust_id' maps to target field 'customerID', handling type conversions along the way."
+  },
+  {
+    q: "A transformation pattern that translates multiple formats into a common intermediate format to reduce the complexity of pairwise mappings.",
+    a: "Canonical Data Model",
+    choices: ["Normalizer","Enricher","Data Mapper","Canonical Data Model"],
+    explain: "The Canonical Data Model defines one shared format — instead of mapping every system to every other, each system maps to and from the canonical model only."
+  },
+  {
+    q: "A transformation pattern that adds missing data to a message by calling external services, such as adding customer details using a customer ID.",
+    a: "Enricher",
+    choices: ["Normalizer","Enricher","Data Mapper","Canonical Data Model"],
+    explain: "An Enricher augments a message with additional data fetched from another source — for example, adding a customer's address to an order message using their ID."
+  },
+  {
+    q: "A transformation pattern that converts various data representations into a standard one, such as unifying different date formats.",
+    a: "Normalizer",
+    choices: ["Enricher","Data Mapper","Normalizer","Message Translator"],
+    explain: "A Normalizer standardizes varied inputs into one consistent format — for example, converting '01/15/2024', 'Jan 15 2024', and '2024-01-15' to ISO 8601."
+  },
+  {
+    q: "A routing pattern that sends a copy of a message to multiple destinations listed dynamically at runtime.",
+    a: "Recipient List",
+    choices: ["Content-Based Router","Recipient List","Dynamic Router","Routing Slip"],
+    explain: "A Recipient List broadcasts a message to a set of consumers — the list of recipients can be determined dynamically based on rules or message content."
+  },
+  {
+    q: "A routing pattern that specifies a predefined multi-step path of endpoints the message should follow dynamically.",
+    a: "Routing Slip",
+    choices: ["Dynamic Router","Routing Slip","Splitter","Aggregator"],
+    explain: "A Routing Slip attaches a list of processing steps to a message — each service processes it and passes it to the next endpoint on the slip."
+  },
+  {
+    q: "An error handling pattern that captures messages that cannot be delivered or processed correctly, allowing for later analysis and manual intervention.",
+    a: "Dead Letter Channel",
+    choices: ["Retry Pattern","Dead Letter Channel","Compensation Pattern","Message Filter"],
+    explain: "The Dead Letter Channel is a holding area for failed messages — rather than losing them, they're stored for review so the issue can be diagnosed and corrected."
+  },
+  {
+    q: "An error handling pattern that attempts to resend failed messages, useful for handling transient issues like temporary network loss.",
+    a: "Retry Pattern",
+    choices: ["Dead Letter Channel","Compensation Pattern","Retry Pattern","Message Aggregator"],
+    explain: "The Retry Pattern automatically re-attempts delivery of a failed message — if a service is temporarily unavailable, retrying after a delay can resolve the issue."
+  },
+  {
+    q: "An error handling pattern that rolls back previously completed actions if a later step in a business workflow fails, maintaining overall data integrity.",
+    a: "Compensation Pattern",
+    choices: ["Retry Pattern","Dead Letter Channel","Compensation Pattern","Message Filter"],
+    explain: "The Compensation Pattern implements undo logic — if step 3 of a 5-step transaction fails, it triggers compensating actions to reverse the effects of steps 1 and 2."
+  }
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let questions, current, score, results;
+
+function init() {
+  questions = shuffle(QUESTIONS).map(q => ({ ...q, shuffledChoices: shuffle(q.choices) }));
+  current = 0; score = 0; results = [];
+  document.getElementById('results-card').classList.remove('show');
+  document.getElementById('quiz-card').style.display = '';
+  document.getElementById('prog-wrap').style.display = '';
+  renderQ();
+}
+
+function renderQ() {
+  const q = questions[current];
+  const n = current + 1;
+  document.getElementById('q-num').textContent = String(n).padStart(2,'0') + ' / 50';
+  document.getElementById('prog-label').textContent = `Question ${n} of 50`;
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+  document.getElementById('prog-fill').style.width = ((current / 50) * 100) + '%';
+  document.getElementById('q-text').textContent = q.q;
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback-box';
+  document.getElementById('next-btn').classList.remove('show');
+  const choices = document.getElementById('choices');
+  choices.innerHTML = '';
+  q.shuffledChoices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="letter">${['A','B','C','D'][i]}</span><span>${c}</span>`;
+    btn.onclick = () => selectAnswer(c);
+    choices.appendChild(btn);
+  });
+}
+
+function selectAnswer(chosen) {
+  const q = questions[current];
+  const correct = chosen === q.a;
+  if (correct) score++;
+  results.push({ correct, chosen, answer: q.a });
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.disabled = true;
+    const label = btn.querySelector('span:last-child').textContent;
+    if (label === q.a) btn.classList.add('correct');
+    else if (label === chosen && !correct) btn.classList.add('wrong');
+    else btn.classList.add('dimmed');
+  });
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    fb.className = 'feedback-box correct';
+    document.getElementById('fb-title').textContent = '✓  Correct!';
+    document.getElementById('fb-ans').textContent = '';
+    document.getElementById('fb-explain').textContent = q.explain;
+  } else {
+    fb.className = 'feedback-box wrong';
+    document.getElementById('fb-title').textContent = '✗  Incorrect';
+    document.getElementById('fb-ans').textContent = `Correct answer: ${q.a}`;
+    document.getElementById('fb-explain').textContent = q.explain;
+  }
+  const nb = document.getElementById('next-btn');
+  nb.textContent = current === 49 ? 'See Results →' : 'Next question →';
+  nb.classList.add('show');
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+}
+
+function nextQ() {
+  current++;
+  if (current >= 50) showResults();
+  else renderQ();
+}
+
+function showResults() {
+  document.getElementById('quiz-card').style.display = 'none';
+  document.getElementById('prog-wrap').style.display = 'none';
+  const pct = Math.round((score / 50) * 100);
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('score-circle').style.setProperty('--pct', pct + '%');
+  let grade, msg;
+  if (pct >= 90) { grade = 'Outstanding!'; msg = 'Excellent mastery of integrative programming concepts.'; }
+  else if (pct >= 80) { grade = 'Great Job!'; msg = 'Strong understanding with a few gaps to review.'; }
+  else if (pct >= 70) { grade = 'Good Work'; msg = 'Solid foundation — review the missed topics.'; }
+  else if (pct >= 60) { grade = 'Passing'; msg = 'You passed, but a thorough review is recommended.'; }
+  else { grade = 'Keep Studying'; msg = 'Review Module 1 thoroughly and try again.'; }
+  document.getElementById('res-grade').textContent = grade;
+  document.getElementById('res-msg').textContent = msg;
+  const wrong = results.filter(r => !r.correct).length;
+  document.getElementById('st-c').textContent = `✓ ${score} correct`;
+  document.getElementById('st-w').textContent = `✗ ${wrong} wrong`;
+  document.getElementById('st-p').textContent = `${pct}%`;
+  document.getElementById('dot-grid').innerHTML = results.map(r =>
+    `<span style="background:${r.correct ? 'var(--green)' : 'var(--red)'};" title="${r.correct ? 'Correct' : 'Wrong: ' + r.answer}"></span>`
+  ).join('');
+  document.getElementById('results-card').classList.add('show');
+  document.getElementById('prog-fill').style.width = '100%';
+}
+
+function restart() {
+  document.getElementById('prog-wrap').style.display = '';
+  document.getElementById('quiz-card').style.display = '';
+  document.getElementById('results-card').classList.remove('show');
+  init();
+}
+
+init();
+</script>
+</body>
+</html>

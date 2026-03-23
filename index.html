@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrative Programming — Midterm Exams</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08090d;
+    --surface: #0f1118;
+    --card: #13161f;
+    --border: #1e2235;
+    --border2: #2a2f45;
+    --m1: #f97316;
+    --m1b: #fb923c;
+    --m1glow: rgba(249,115,22,0.15);
+    --m2: #4f8eff;
+    --m2b: #7eb3ff;
+    --m2glow: rgba(79,142,255,0.18);
+    --m3: #00d4aa;
+    --m3b: #5eecd4;
+    --m3glow: rgba(0,212,170,0.15);
+    --text: #eef0f8;
+    --muted: #6b7394;
+    --dim: #252a3d;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Outfit', sans-serif; font-weight: 300;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px 60px; overflow-x: hidden; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(79,142,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(79,142,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px; pointer-events: none; z-index: 0;
+  }
+  .orb { position: fixed; border-radius: 50%; pointer-events: none; filter: blur(80px); z-index: 0; }
+  .orb-1 { width: 500px; height: 500px; top: -150px; left: -150px; background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%); animation: orbFloat 8s ease-in-out infinite; }
+  .orb-2 { width: 400px; height: 400px; bottom: -100px; right: -100px; background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%); animation: orbFloat 10s ease-in-out infinite reverse; }
+  @keyframes orbFloat { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,20px)} }
+
+  .wrapper { position: relative; z-index: 1; width: 100%; max-width: 820px; display: flex; flex-direction: column; align-items: center; }
+
+  .top-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border2);
+    border-radius: 99px; padding: 6px 16px 6px 10px;
+    font-size: 12px; color: var(--muted); font-weight: 400; letter-spacing: 0.04em;
+    margin-bottom: 32px; animation: fadeDown 0.6s cubic-bezier(0.4,0,0.2,1) both;
+  }
+  .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--m2); box-shadow: 0 0 8px var(--m2); animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .hero { text-align: center; margin-bottom: 48px; animation: fadeDown 0.6s 0.1s cubic-bezier(0.4,0,0.2,1) both; }
+  .course-label { font-size: 12px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(50px,11vw,90px); line-height: 0.92; letter-spacing: 0.02em; margin-bottom: 18px; color: var(--text); }
+  .hero h1 .line2 { background: linear-gradient(90deg, var(--m1) 0%, var(--m2) 50%, var(--m3) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: block; }
+  .hero p { font-size: 15px; color: var(--muted); max-width: 400px; margin: 0 auto; line-height: 1.7; }
+
+  .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; width: 100%; animation: fadeUp 0.6s 0.2s cubic-bezier(0.4,0,0.2,1) both; }
+  @media(max-width:700px){ .cards{grid-template-columns:1fr} }
+  @media(min-width:701px) and (max-width:900px){ .cards{grid-template-columns:1fr 1fr} .card-m1{grid-column:1/-1} }
+
+  .exam-card {
+    position: relative; background: var(--card); border-radius: 22px; padding: 28px 24px 24px;
+    border: 1px solid var(--border); text-decoration: none; color: var(--text);
+    overflow: hidden; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), border-color 0.3s, box-shadow 0.3s;
+    display: flex; flex-direction: column; cursor: pointer;
+  }
+  .exam-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 22px 22px 0 0; }
+  .exam-card::after { content: ''; position: absolute; inset: 0; border-radius: 22px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .card-m1::before { background: linear-gradient(90deg, var(--m1), var(--m1b)); }
+  .card-m2::before { background: linear-gradient(90deg, var(--m2), var(--m2b)); }
+  .card-m3::before { background: linear-gradient(90deg, var(--m3), var(--m3b)); }
+  .card-m1::after { background: radial-gradient(ellipse at top left, var(--m1glow), transparent 65%); }
+  .card-m2::after { background: radial-gradient(ellipse at top left, var(--m2glow), transparent 65%); }
+  .card-m3::after { background: radial-gradient(ellipse at top left, var(--m3glow), transparent 65%); }
+  .exam-card:hover { transform: translateY(-5px); }
+  .card-m1:hover { border-color: rgba(249,115,22,0.4); box-shadow: 0 18px 50px rgba(249,115,22,0.12); }
+  .card-m2:hover { border-color: rgba(79,142,255,0.4); box-shadow: 0 18px 50px rgba(79,142,255,0.12); }
+  .card-m3:hover { border-color: rgba(0,212,170,0.35); box-shadow: 0 18px 50px rgba(0,212,170,0.10); }
+  .exam-card:hover::after { opacity: 1; }
+
+  .card-num { font-family: 'Bebas Neue', sans-serif; font-size: 66px; line-height: 1; opacity: 0.07; position: absolute; top: 16px; right: 20px; letter-spacing: 0.02em; pointer-events: none; transition: opacity 0.3s; }
+  .exam-card:hover .card-num { opacity: 0.13; }
+
+  .card-icon { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 18px; position: relative; z-index: 1; transition: transform 0.3s; }
+  .exam-card:hover .card-icon { transform: scale(1.1); }
+  .card-m1 .card-icon { background: rgba(249,115,22,0.13); }
+  .card-m2 .card-icon { background: rgba(79,142,255,0.12); }
+  .card-m3 .card-icon { background: rgba(0,212,170,0.10); }
+
+  .card-module { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 5px; position: relative; z-index: 1; }
+  .card-m1 .card-module { color: var(--m1); }
+  .card-m2 .card-module { color: var(--m2); }
+  .card-m3 .card-module { color: var(--m3); }
+
+  .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.03em; color: var(--text); margin-bottom: 10px; line-height: 1.15; position: relative; z-index: 1; }
+  .card-desc { font-size: 12.5px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; flex: 1; position: relative; z-index: 1; }
+
+  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; position: relative; z-index: 1; }
+  .tag { font-size: 10.5px; padding: 3px 9px; border-radius: 99px; border: 1px solid; font-weight: 400; }
+  .card-m1 .tag { border-color: rgba(249,115,22,0.25); color: #ffb380; background: rgba(249,115,22,0.07); }
+  .card-m2 .tag { border-color: rgba(79,142,255,0.25); color: #89b4ff; background: rgba(79,142,255,0.07); }
+  .card-m3 .tag { border-color: rgba(0,212,170,0.25); color: #5eecd4; background: rgba(0,212,170,0.06); }
+
+  .card-cta { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+  .cta-label { font-size: 13px; font-weight: 500; }
+  .card-m1 .cta-label { color: var(--m1); }
+  .card-m2 .cta-label { color: var(--m2); }
+  .card-m3 .cta-label { color: var(--m3); }
+  .cta-arrow { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: transform 0.25s; }
+  .exam-card:hover .cta-arrow { transform: translateX(5px); }
+  .card-m1 .cta-arrow { background: rgba(249,115,22,0.14); color: var(--m1); }
+  .card-m2 .cta-arrow { background: rgba(79,142,255,0.14); color: var(--m2); }
+  .card-m3 .cta-arrow { background: rgba(0,212,170,0.11); color: var(--m3); }
+
+  .footer { margin-top: 36px; font-size: 12px; color: var(--dim); text-align: center; animation: fadeUp 0.6s 0.35s cubic-bezier(0.4,0,0.2,1) both; line-height: 1.7; }
+  .footer span { color: var(--border2); }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .ripple { position: absolute; border-radius: 50%; width: 10px; height: 10px; transform: scale(0); animation: rippleAnim 0.55s linear; pointer-events: none; z-index: 10; }
+  .card-m1 .ripple { background: rgba(249,115,22,0.28); }
+  .card-m2 .ripple { background: rgba(79,142,255,0.28); }
+  .card-m3 .ripple { background: rgba(0,212,170,0.22); }
+  @keyframes rippleAnim { to{transform:scale(40);opacity:0} }
+
+  @media(max-width:480px){ .hero h1{font-size:52px} .exam-card{padding:24px 18px 20px} }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="wrapper">
+
+  <div class="top-badge">
+    <span class="badge-dot"></span>
+    Integrative Programming · Midterm Examination
+  </div>
+
+  <div class="hero">
+    <div class="course-label">Select your exam module</div>
+    <h1>CHOOSE<br><span class="line2">MODULE</span></h1>
+    <p>Select a module below to begin your 50-item midterm practice exam with instant feedback on every question.</p>
+  </div>
+
+  <div class="cards">
+
+    <a class="exam-card card-m1" href="MidtermModule1.html" onclick="addRipple(event)">
+      <div class="card-num">1</div>
+      <div class="card-icon">🔗</div>
+      <div class="card-module">Module 1</div>
+      <div class="card-title">Intro to Integrative<br>Programming</div>
+      <div class="card-desc">Integration concepts, challenges, architecture types, and integration patterns.</div>
+      <div class="card-tags">
+        <span class="tag">ESB</span>
+        <span class="tag">Microservices</span>
+        <span class="tag">EDA</span>
+        <span class="tag">Patterns</span>
+      </div>
+      <div class="card-cta">
+        <span class="cta-label">Start Exam →</span>
+        <div class="cta-arrow">→</div>
+      </div>
+    </a>
+
+    <a class="exam-card card-m2" href="MidtermModule2.html" onclick="addRipple(event)">
+      <div class="card-num">2</div>
+      <div class="card-icon">🗄️</div>
+      <div class="card-module">Module 2</div>
+      <div class="card-title">Data<br>Integration</div>
+      <div class="card-desc">Database connectivity, ETL processes, data transformation, and XML, JSON, CSV formats.</div>
+      <div class="card-tags">
+        <span class="tag">ETL</span>
+        <span class="tag">JSON / XML</span>
+        <span class="tag">Data Mapping</span>
+        <span class="tag">Warehouse</span>
+      </div>
+      <div class="card-cta">
+        <span class="cta-label">Start Exam →</span>
+        <div class="cta-arrow">→</div>
+      </div>
+    </a>
+
+    <a class="exam-card card-m3" href="MidtermModule3.html" onclick="addRipple(event)">
+      <div class="card-num">3</div>
+      <div class="card-icon">🌐</div>
+      <div class="card-module">Module 3</div>
+      <div class="card-title">Web Services<br>&amp; APIs</div>
+      <div class="card-desc">REST API design, SOAP web services, API documentation, and testing &amp; debugging.</div>
+      <div class="card-tags">
+        <span class="tag">REST API</span>
+        <span class="tag">SOAP</span>
+        <span class="tag">API Docs</span>
+        <span class="tag">Testing</span>
+      </div>
+      <div class="card-cta">
+        <span class="cta-label">Start Exam →</span>
+        <div class="cta-arrow">→</div>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    50 questions per module &nbsp;<span>·</span>&nbsp; Instant feedback &nbsp;<span>·</span>&nbsp; Shuffled every attempt<br>
+    Keep all files in the same folder for links to work correctly.
+  </div>
+
+</div>
+
+<script>
+function addRipple(e) {
+  const card = e.currentTarget;
+  const ripple = document.createElement('span');
+  ripple.classList.add('ripple');
+  const rect = card.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height) * 2;
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+  ripple.style.top  = (e.clientY - rect.top  - size / 2) + 'px';
+  card.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+}
+</script>
+</body>
+</html>
